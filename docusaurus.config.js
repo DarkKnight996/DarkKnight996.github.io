@@ -50,6 +50,7 @@ const config = {
         docs: {
           sidebarPath: './sidebars.js',
           routeBasePath: '/',
+          showLastUpdateTime: true,
         },
         blog: false,
         theme: {
@@ -71,12 +72,17 @@ const config = {
       },
       // Replace with your project's social card
       image: 'img/docusaurus-social-card.jpg',
-      navbar: {
-        title: 'My Site',
-        logo: {
-          alt: 'My Site Logo',
-          src: 'img/logo.svg',
+      docs: {
+        sidebar: {
+          hideable: true,
         },
+      },
+      navbar: {
+        title: 'AI Dark Knight Note',
+        // logo: {
+        //   alt: 'My Site Logo',
+        //   src: 'img/logo.svg',
+        // },
         items: [
           {
             href: 'https://github.com/AiDarkKnight',
@@ -87,7 +93,7 @@ const config = {
       },
       footer: {
         style: 'dark',
-        copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+        copyright: `Copyright © ${new Date().getFullYear()} AiDarkKnight, Inc. Built with Docusaurus.`,
       },
       prism: {
         theme: prismThemes.github,
