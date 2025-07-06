@@ -10,8 +10,8 @@ import {themes as prismThemes} from 'prism-react-renderer';
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'My Site',
-  tagline: 'Dinosaurs are cool',
+  title: 'DarkKnight Note',
+  tagline: 'AI Dark Knight Note',
   favicon: 'img/favicon.ico',
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
@@ -79,10 +79,10 @@ const config = {
       },
       navbar: {
         title: 'AI Dark Knight Note',
-        // logo: {
-        //   alt: 'My Site Logo',
-        //   src: 'img/logo.svg',
-        // },
+        logo: {
+          alt: 'DarkKnight Note',
+          src: 'img/favicon.ico',
+        },
         items: [
           {
             href: 'https://github.com/AiDarkKnight',
