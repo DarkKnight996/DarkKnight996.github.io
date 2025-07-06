@@ -62,6 +62,13 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
+      //giscus
+      giscus: {
+        repo: 'AiDarkKnight/comment',
+        repoId: 'R_kgDOPH6giw',
+        category: 'General',
+        categoryId: 'DIC_kwDOPH6gi84Csjmd',
+      },
       // Replace with your project's social card
       image: 'img/docusaurus-social-card.jpg',
       navbar: {
