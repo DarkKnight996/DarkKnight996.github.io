@@ -20,15 +20,15 @@ const config = {
   },
 
   // Set the production url of your site here
-  url: 'https://aidarkknight.github.io',
+  url: 'https://darkknight996.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'AiDarkKnight', // Usually your GitHub org/user name.
-  projectName: 'AiDarkKnight.github.io', // Usually your repo name.
+  organizationName: 'DarkKnight996', // Usually your GitHub org/user name.
+  projectName: 'DarkKnight996.github.io', // Usually your repo name.
   trailingSlash: false,
 
   onBrokenLinks: 'throw',
@@ -65,7 +65,7 @@ const config = {
     ({
       //giscus
       giscus: {
-        repo: 'AiDarkKnight/comment',
+        repo: 'DarkKnight996/comment',
         repoId: 'R_kgDOPH6giw',
         category: 'General',
         categoryId: 'DIC_kwDOPH6gi84Csjmd',
@@ -78,14 +78,14 @@ const config = {
         },
       },
       navbar: {
-        title: 'AI Dark Knight Note',
+        title: 'Dark Knight Note',
         logo: {
           alt: 'DarkKnight Note',
           src: 'img/favicon.ico',
         },
         items: [
           {
-            href: 'https://github.com/AiDarkKnight',
+            href: 'https://github.com/DarkKnight996',
             label: 'GitHub',
             position: 'right',
           },
@@ -93,7 +93,7 @@ const config = {
       },
       footer: {
         style: 'dark',
-        copyright: `Copyright © ${new Date().getFullYear()} AiDarkKnight, Inc. Built with Docusaurus.`,
+        copyright: `Copyright © ${new Date().getFullYear()} DarkKnight996, Inc. Built with Docusaurus.`,
       },
       prism: {
         theme: prismThemes.github,
