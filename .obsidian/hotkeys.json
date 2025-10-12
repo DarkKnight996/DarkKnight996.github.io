@@ -1,0 +1,15 @@
+{
+  "terminal:find-in-terminal": [],
+  "terminal:close-terminal": [],
+  "terminal:toggle-focus-on-last-terminal": [],
+  "terminal:open-terminal.integrated.root": [
+    {
+      "modifiers": [
+        "Ctrl",
+        "Shift"
+      ],
+      "key": "`"
+    }
+  ],
+  "terminal:clear-terminal": []
+}
