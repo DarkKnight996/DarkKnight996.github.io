@@ -37,7 +37,5 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git remote set-url origin https://x-access-token:${CUSTOM_GITHUB_TOKEN}@github.com/${{ github.repository }}.git
           git add .
-          if ! git diff --quiet && ! git diff --staged --quiet; then
-            git commit -m "Auto-update arXiv paper for $(date -d 'yesterday' +%Y-%m-%d)"
-            git push
-          fi
+          git commit -m "Auto-update arXiv paper for $(date -d 'yesterday' +%Y-%m-%d)"
+          git push
