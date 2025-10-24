@@ -273,7 +273,7 @@ class CompletePaperProcessor:
                 if len(pdf_reader.pages) > 0:
                     first_page = pdf_reader.pages[0]
                     text = first_page.extract_text()
-                    return text[:2000]  # 限制长度避免API调用过长
+                    return text[:4096]  # 限制长度避免API调用过长
                 else:
                     return "PDF文件为空"
         except Exception as e:
@@ -707,10 +707,11 @@ def main():
     processor = CompletePaperProcessor()
     
     # 指定要处理的日期或区间
-    target_date = "2025-10-23"  # 单日
+    # target_date = "2025-10-23"  # 单日
     # target_date = ["2025-10-16", "2025-10-18"]  # 日期段列表
     # target_date = "2025-10-16:2025-10-18"       # 日期段字符串
     # target_date = "2025-09-01:2025-09-30"        # Demo请切换需要的类型
+    target_date = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d') # 昨天日期
 
     # 处理论文
     processor.process_papers_by_date(
