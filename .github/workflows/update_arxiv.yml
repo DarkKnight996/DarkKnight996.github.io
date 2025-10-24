@@ -9,6 +9,10 @@ on:
 jobs:
   update:
     runs-on: ubuntu-latest
+    # 推荐用 GitHub Secrets: DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+    env:
+      DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
