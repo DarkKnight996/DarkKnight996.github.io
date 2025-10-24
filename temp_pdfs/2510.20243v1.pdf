@@ -1,0 +1,47 @@
+
+       <html>
+     <head>
+       <title>arXiv reCAPTCHA</title>
+       <link rel="stylesheet" type="text/css" media="screen" href="https://static.arxiv.org/static/browse/0.3.2.8/css/arXiv.css?v=20220215" />
+       <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+       <script>
+         var submitForm = function () {
+             document.forms['rrr'].submit();
+         }
+       </script>
+     </head>
+
+     <body class="with-cu-identity">
+
+       <div id="cu-identity">
+         <div id="cu-logo">
+           <a href="https://www.cornell.edu/"><img src="https://static.arxiv.org/icons/cu/cornell-reduced-white-SMALL.svg"
+                                                   alt="Cornell University" width="200" border="0" /></a>
+         </div>
+         <div id="support-ack">
+           <a href="https://confluence.cornell.edu/x/ALlRF">We gratefully acknowledge support from<br />
+             the Simons Foundation and member institutions.</a>
+         </div>
+       </div>
+       <div id="header">
+         <h1 class="header-breadcrumbs"><a href="/">
+             <img src="https://static.arxiv.org/images/arxiv-logo-one-color-white.svg" aria-label="logo"
+                  alt="arxiv logo" width="85" style="width:85px;margin-right:8px;"></a></h1>
+       </div>
+
+       <form id="rrr" action="" method="GET">
+         <div class="g-recaptcha" data-sitekey="6Lcs9MMpAAAAAIbNRdl5t5naTQeb9ZruBQ8dkXW0" data-callback="submitForm"></div>
+         <br/>
+         <input type="submit" value="Submit">
+       </form>
+
+       <footer style="clear: both;">
+         <div class="">
+           <ul style="list-style: none; line-height: 2;">
+             <li><a href="https://arxiv.org/help/web_accessibility">Web Accessibility Assistance</a></li>
+           </ul>
+         </div>
+       </footer>
+        </body>
+      </html>
+    
