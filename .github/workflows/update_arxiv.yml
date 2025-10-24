@@ -2,40 +2,36 @@ name: Update arXiv Paper Daily
 
 on:
   schedule:
-    # 每天在 UTC+8 时间 10:00 执行（对应 UTC 02:00）
-    - cron: '0 2 * * *'
-  workflow_dispatch:  # 允许手动触发
+    - cron: '0 2 * * *'  # UTC 02:00 = UTC+8 10:00
+  workflow_dispatch:
 
 jobs:
   update:
     runs-on: ubuntu-latest
-    # 推荐用 GitHub Secrets: DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
     env:
       DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      - name: Install dependencies (if needed)
+      - name: Install dependencies
         run: |
-          pip install -r requirements.txt  # 或其他依赖
+          pip install -r requirements.txt
 
       - name: Run script with today's date
         run: python get_daily_arxiv_paper.py
 
       - name: Commit and push changes
-        env:
-          CUSTOM_GITHUB_TOKEN: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
         run: |
-          git config --global user.name "DarkKnight996"
-          git config --global user.email "192489639+DarkKnight996@users.noreply.github.com"
-          git remote set-url origin https://x-access-token:${CUSTOM_GITHUB_TOKEN}@github.com/${{ github.repository }}.git
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add .
-          git commit -m "Auto-update arXiv paper for $(date -d 'yesterday' +%Y-%m-%d)"
-          git push
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update arXiv paper for $(date -d 'yesterday' +%Y-%m-%d)" && git push)
