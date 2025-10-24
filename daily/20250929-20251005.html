@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="generator" content="Docusaurus v3.9.2">
 <title data-rh="true">20250929-20251005 | DarkKnight Note</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://darkknight996.github.io/img/docusaurus-social-card.jpg"><meta data-rh="true" name="twitter:image" content="https://darkknight996.github.io/img/docusaurus-social-card.jpg"><meta data-rh="true" property="og:url" content="https://darkknight996.github.io/daily/20250929-20251005"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="20250929-20251005 | DarkKnight Note"><meta data-rh="true" name="description" content="2025-09-29"><meta data-rh="true" property="og:description" content="2025-09-29"><link data-rh="true" rel="icon" href="/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://darkknight996.github.io/daily/20250929-20251005"><link data-rh="true" rel="alternate" href="https://darkknight996.github.io/daily/20250929-20251005" hreflang="en"><link data-rh="true" rel="alternate" href="https://darkknight996.github.io/daily/20250929-20251005" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Daily","item":"https://darkknight996.github.io/category/daily"},{"@type":"ListItem","position":2,"name":"20250929-20251005","item":"https://darkknight996.github.io/daily/20250929-20251005"}]}</script><link rel="stylesheet" href="/assets/css/styles.2a9d613c.css">
-<script src="/assets/js/runtime~main.78e1c784.js" defer="defer"></script>
-<script src="/assets/js/main.be5f6e7c.js" defer="defer"></script>
+<script src="/assets/js/runtime~main.55de7531.js" defer="defer"></script>
+<script src="/assets/js/main.534f25d3.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
 <svg style="display: none;"><defs>
@@ -15,36 +15,24 @@
 <h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="2025-09-29">2025-09-29<a href="#2025-09-29" class="hash-link" aria-label="Direct link to 2025-09-29" title="Direct link to 2025-09-29" translate="no">​</a></h2>
 <ul>
 <li class="">
+<p><strong>[arXiv2509] Accelerating Dynamic Image Graph Construction on FPGA for Vision GNNs</strong></p>
+<ul>
+<li class=""><strong>tags:</strong> [mlsys], [Other models inference], [FPGA acceleration, Vision GNNs, Dynamic Image Graph Construction, hardware optimization, parallel sorting]</li>
+<li class=""><strong>authors:</strong> Anvitha Ramachandran, Dhruv Parikh, Viktor Prasanna</li>
+<li class=""><strong>institution:</strong> University of Southern California</li>
+<li class=""><strong>link:</strong> <a href="http://arxiv.org/pdf/2509.25121v1" target="_blank" rel="noopener noreferrer" class="">http://arxiv.org/pdf/2509.25121v1</a></li>
+<li class=""><strong>Simple LLM Summary:</strong> The paper proposes a streaming FPGA accelerator for Dynamic Image Graph Construction in Vision GNNs, using on-chip buffers and parallel sorting to process features efficiently. This design minimizes memory traffic and achieves significant speedups over CPU and GPU baselines. The modular architecture supports various image resolutions and ViG model variants while maintaining high performance.</li>
+</ul>
+</li>
+<li class="">
 <p><strong>[arXiv2509] Context-Driven Performance Modeling for Causal Inference Operators on
 Neural Processing Units</strong></p>
 <ul>
-<li class=""><strong>tags:</strong> [mlsys], [LLM inference], [neural processing units, performance analysis, causal attention, sub-quadratic attention, edge computing, hardware-aware models]</li>
+<li class=""><strong>tags:</strong> [mlsys], [LLM inference], [NPU performance analysis, causal inference operators, attention mechanisms, edge computing, hardware-aware optimization]</li>
 <li class=""><strong>authors:</strong> Neelesh Gupta, Rakshith Jayanth, Dhruv Parikh, Viktor Prasanna</li>
 <li class=""><strong>institution:</strong> University of Southern California</li>
 <li class=""><strong>link:</strong> <a href="http://arxiv.org/pdf/2509.25155v1" target="_blank" rel="noopener noreferrer" class="">http://arxiv.org/pdf/2509.25155v1</a></li>
-<li class=""><strong>Simple LLM Summary:</strong> This paper conducts performance analysis of causal inference operators including standard quadratic attention and sub-quadratic alternatives on NPUs. The study reveals quadratic attention becomes memory-bound with cache inefficiency and pipeline stalls exceeding 95% at long contexts, while sub-quadratic models become compute-bound on vector cores. These findings provide insights for co-designing hardware-aware models and optimization strategies for on-device AI inference.</li>
-</ul>
-</li>
-<li class="">
-<p><strong>[arXiv2509] Intent-Driven Storage Systems: From Low-Level Tuning to High-Level
-Understanding</strong></p>
-<ul>
-<li class=""><strong>tags:</strong> [mlsys], [LLM inference], [storage systems, workload intent, parameter reconfiguration, caching, prefetching]</li>
-<li class=""><strong>authors:</strong> Shai Bergman, Won Wook Song, Lukas Cavigelli, Konstantin Berestizshevsky, Ke Zhou, Ji Zhang</li>
-<li class=""><strong>institution:</strong> Huawei Zurich Research Center</li>
-<li class=""><strong>link:</strong> <a href="http://arxiv.org/pdf/2510.15917v1" target="_blank" rel="noopener noreferrer" class="">http://arxiv.org/pdf/2510.15917v1</a></li>
-<li class=""><strong>Simple LLM Summary:</strong> This paper proposes Intent-Driven Storage Systems (IDSS) that use LLMs to interpret workload intent from unstructured signals and generate adaptive storage configurations. The system improves IOPS by up to 2.45× on FileBench workloads through optimized caching and prefetching decisions. Results show LLMs can effectively bridge application semantics with low-level storage control when properly constrained within policy guardrails.</li>
-</ul>
-</li>
-<li class="">
-<p><strong>[arXiv2509] Asynchronous Policy Gradient Aggregation for Efficient Distributed
-Reinforcement Learning</strong></p>
-<ul>
-<li class=""><strong>tags:</strong> [mlsys], [Other models training], [distributed reinforcement learning, asynchronous policy gradient, heterogeneous computing, communication efficiency]</li>
-<li class=""><strong>authors:</strong> Alexander Tyurin, Andrei Spiridonov, Varvara Rudenko</li>
-<li class=""><strong>institution:</strong> Opta</li>
-<li class=""><strong>link:</strong> <a href="http://arxiv.org/pdf/2509.24305v1" target="_blank" rel="noopener noreferrer" class="">http://arxiv.org/pdf/2509.24305v1</a></li>
-<li class=""><strong>Simple LLM Summary:</strong> This paper introduces two new algorithms, Rennala NIGT and Malenia NIGT, for asynchronous policy gradient aggregation in distributed reinforcement learning. The methods achieve state-of-the-art efficiency by handling both homogeneous and heterogeneous computing environments with improved computational and communication complexity. Experimental results demonstrate significant performance improvements over prior approaches.</li>
+<li class=""><strong>Simple LLM Summary:</strong> This paper conducts comprehensive performance analysis of causal inference operators including quadratic attention and sub-quadratic alternatives on Neural Processing Units. The study benchmarks various attention mechanisms and identifies that quadratic attention becomes memory-bound with cache inefficiency, while sub-quadratic models can become compute-bound on vector cores. These findings provide insights for co-designing hardware-aware models and optimization strategies for on-device long-context inference.</li>
 </ul>
 </li>
 <li class="">
@@ -55,37 +43,29 @@ Long-Context LLM Serving</strong></p>
 <li class=""><strong>authors:</strong> Qihui Zhou, Peiqi Yin, Pengfei Zuo, James Cheng</li>
 <li class=""><strong>institution:</strong> The Chinese University of Hong Kong, Huawei Cloud</li>
 <li class=""><strong>link:</strong> <a href="http://arxiv.org/pdf/2509.24626v1" target="_blank" rel="noopener noreferrer" class="">http://arxiv.org/pdf/2509.24626v1</a></li>
-<li class=""><strong>Simple LLM Summary:</strong> SparseServe introduces hierarchical HBM-DRAM management with fragmentation-aware KV cache transfer, working-set-aware batch control, and layer-segmented prefill to optimize dynamic sparse attention. It achieves up to 9.26x lower TTFT latency and 3.14x higher throughput compared to state-of-the-art systems. This enables efficient serving of long-context LLMs by addressing HBM capacity bottlenecks.</li>
+<li class=""><strong>Simple LLM Summary:</strong> SparseServe introduces an efficient hierarchical HBM-DRAM management system for dynamic sparse attention in long-context LLM serving. It addresses KV cache fragmentation, HBM contention, and prefill demands through fragmentation-aware transfers, working-set-aware batching, and layer-segmented prefill. The system achieves significantly lower latency and higher throughput compared to state-of-the-art serving systems.</li>
 </ul>
 </li>
 <li class="">
-<p><strong>[arXiv2509] Experience Deploying Containerized GenAI Services at an HPC Center</strong></p>
+<p><strong>[arXiv2509] Intent-Driven Storage Systems: From Low-Level Tuning to High-Level
+Understanding</strong></p>
 <ul>
-<li class=""><strong>tags:</strong> [mlsys], [LLM inference], [containerization, HPC-Kubernetes integration, GenAI deployment]</li>
-<li class=""><strong>authors:</strong> Angel M. Beltre, Jeff Ogden, Kevin Pedretti</li>
-<li class=""><strong>institution:</strong> Sandia National Laboratories</li>
-<li class=""><strong>link:</strong> <a href="http://arxiv.org/pdf/2509.20603v2" target="_blank" rel="noopener noreferrer" class="">http://arxiv.org/pdf/2509.20603v2</a></li>
-<li class=""><strong>Simple LLM Summary:</strong> The paper presents a converged computing architecture integrating HPC and Kubernetes platforms to deploy containerized GenAI workloads, using Llama LLM with vLLM inference server as a case study. It demonstrates successful deployment across multiple container runtimes and highlights practical considerations for reproducibility. The experience provides guidance for future HPC container tool development and research directions.</li>
+<li class=""><strong>tags:</strong> [mlsys], [LLM inference], [storage systems, intent-driven optimization, parameter configuration, workload adaptation]</li>
+<li class=""><strong>authors:</strong> Shai Bergman, Won Wook Song, Lukas Cavigelli, Konstantin Berestizshevsky, Ke Zhou, Ji Zhang</li>
+<li class=""><strong>institution:</strong> Huawei Zurich Research Center, Huazhong University of Science and Technology</li>
+<li class=""><strong>link:</strong> <a href="http://arxiv.org/pdf/2510.15917v1" target="_blank" rel="noopener noreferrer" class="">http://arxiv.org/pdf/2510.15917v1</a></li>
+<li class=""><strong>Simple LLM Summary:</strong> The paper proposes Intent-Driven Storage Systems (IDSS) that use large language models to infer workload intent from unstructured signals and generate adaptive storage configurations. Experimental results show IDSS can improve IOPS by up to 2.45x through optimized caching and prefetching configurations. This demonstrates LLMs can effectively bridge application semantics with low-level system control when properly constrained within policy guardrails.</li>
 </ul>
 </li>
 <li class="">
-<p><strong>[arXiv2509] Accelerating Dynamic Image Graph Construction on FPGA for Vision GNNs</strong></p>
+<p><strong>[arXiv2509] HAPT: Heterogeneity-Aware Automated Parallel Training on Heterogeneous
+Clusters</strong></p>
 <ul>
-<li class=""><strong>tags:</strong> [mlsys], [Other models inference], [FPGA acceleration, graph construction, Vision GNNs, dynamic image processing, hardware optimization]</li>
-<li class=""><strong>authors:</strong> Anvitha Ramachandran, Dhruv Parikh, Viktor Prasanna</li>
-<li class=""><strong>institution:</strong> University of Southern California</li>
-<li class=""><strong>link:</strong> <a href="http://arxiv.org/pdf/2509.25121v1" target="_blank" rel="noopener noreferrer" class="">http://arxiv.org/pdf/2509.25121v1</a></li>
-<li class=""><strong>Simple LLM Summary:</strong> This paper proposes a streaming FPGA accelerator for Dynamic Image Graph Construction (DIGC) in Vision GNNs, using on-chip buffers and parallel sorting to process features efficiently. The design minimizes memory traffic and achieves significant speedups over CPU and GPU baselines. It provides a scalable solution that maintains flexibility across different image resolutions and model variants.</li>
-</ul>
-</li>
-<li class="">
-<p><strong>[arXiv2509] RServe: Overlapping Encoding and Prefill for Efficient LMM Inference</strong></p>
-<ul>
-<li class=""><strong>tags:</strong> [mlsys], [LLM inference], [multimodal models, scheduling, parallel processing, latency optimization, throughput improvement]</li>
-<li class=""><strong>authors:</strong> Tianyu Guo, Tianming Xu, Xianjie Chen, Junru Chen, Nong Xiao, Xianwei Zhang</li>
-<li class=""><strong>institution:</strong> Sun Yat-sen University</li>
-<li class=""><strong>link:</strong> <a href="http://arxiv.org/pdf/2509.24381v1" target="_blank" rel="noopener noreferrer" class="">http://arxiv.org/pdf/2509.24381v1</a></li>
-<li class=""><strong>Simple LLM Summary:</strong> REDServe proposes an efficient LMM inference system that overlaps multimodal encoding with language model computation using fine-grained scheduling. It employs chunked prefill and token budgeting to balance computational loads across requests. Experimental results show up to 66% latency reduction and 109% throughput improvement compared to existing approaches.</li>
+<li class=""><strong>tags:</strong> [mlsys], [cluster infrastructure], [heterogeneous clusters, automated parallel training, inter-operator parallelism, 1F1B scheduler, computation-communication overlap]</li>
+<li class=""><strong>authors:</strong> Antian Liang, Zhigang Zhao, Kai Zhang, Xuri Shi, Chuantao Li, Chunxiao Wang, Zhenying He, Yinan Jing, X. Sean Wang</li>
+<li class=""><strong>institution:</strong> Fudan University, Shandong Computer Science Center (National Supercomputer Center in Jinan)</li>
+<li class=""><strong>link:</strong> <a href="http://arxiv.org/pdf/2509.24859v1" target="_blank" rel="noopener noreferrer" class="">http://arxiv.org/pdf/2509.24859v1</a></li>
+<li class=""><strong>Simple LLM Summary:</strong> Hapt introduces a fine-grained planner for inter-operator parallel strategy search and a heterogeneity-aware 1F1B scheduler to optimize distributed training on heterogeneous clusters. The framework achieves balanced workload distribution and maximizes computation-communication overlap with minimal memory overhead. Evaluation shows Hapt delivers 1.3x-1.6x higher performance than state-of-the-art training frameworks on heterogeneous clusters.</li>
 </ul>
 </li>
 <li class="">
@@ -94,58 +74,98 @@ Routing</strong></p>
 <ul>
 <li class=""><strong>tags:</strong> [mlsys], [LLM inference], [mixture-of-experts, load balancing, routing algorithm, inference optimization, plug-and-play]</li>
 <li class=""><strong>authors:</strong> Rana Shahout, Colin Cai, Yilun Du, Minlan Yu, Michael Mitzenmacher</li>
-<li class=""><strong>institution:</strong> Harvard University</li>
+<li class=""><strong>institution:</strong> Harvard University, University of California, Berkeley</li>
 <li class=""><strong>link:</strong> <a href="http://arxiv.org/pdf/2510.03293v1" target="_blank" rel="noopener noreferrer" class="">http://arxiv.org/pdf/2510.03293v1</a></li>
-<li class=""><strong>Simple LLM Summary:</strong> LASER is a plug-and-play routing algorithm that balances expert load in Mixture-of-Experts models by adapting to gate score distributions. It routes tokens to strongest experts when scores show clear preference, and to least-loaded experts when scores are uniform. The method improves inference latency and throughput while maintaining accuracy, requiring no model retraining or fine-tuning.</li>
+<li class=""><strong>Simple LLM Summary:</strong> LASER is a plug-and-play inference-time routing algorithm that balances expert load in Mixture-of-Experts models by adapting to gate score distributions. It routes tokens to strongest experts when scores show clear preference, and expands to less-loaded experts when scores are uniform. The method improves load balancing, reduces latency, and increases throughput while maintaining accuracy, without requiring model retraining or fine-tuning.</li>
 </ul>
 </li>
 <li class="">
-<p><strong>[arXiv2509] HAPT: Heterogeneity-Aware Automated Parallel Training on Heterogeneous
-Clusters</strong></p>
+<p><strong>[arXiv2509] Asynchronous Policy Gradient Aggregation for Efficient Distributed
+Reinforcement Learning</strong></p>
 <ul>
-<li class=""><strong>tags:</strong> [mlsys], [Other models training], [distributed training, heterogeneous clusters, parallel training, load balancing, communication optimization]</li>
-<li class=""><strong>authors:</strong> Antian Liang, Zhigang Zhao, Kai Zhang, Xuri Shi, Chuantao Li, Chunxiao Wang, Zhenying He, Yinan Jing, X. Sean Wang</li>
-<li class=""><strong>institution:</strong> Fudan University</li>
-<li class=""><strong>link:</strong> <a href="http://arxiv.org/pdf/2509.24859v1" target="_blank" rel="noopener noreferrer" class="">http://arxiv.org/pdf/2509.24859v1</a></li>
-<li class=""><strong>Simple LLM Summary:</strong> Hapt introduces a fine-grained planner for inter-operator parallel strategy search and a heterogeneity-aware 1F1B scheduler to optimize distributed training on heterogeneous clusters. It achieves better load balancing and computation-communication overlap while minimizing memory overhead. Evaluation shows Hapt delivers 1.3x-1.6x higher performance compared to state-of-the-art frameworks.</li>
+<li class=""><strong>tags:</strong> [mlsys], [Other models training], [distributed reinforcement learning, policy gradient methods, asynchronous computation, communication efficiency, heterogeneous environments]</li>
+<li class=""><strong>authors:</strong> Alexander Tyurin, Andrei Spiridonov, Varvara Rudenko</li>
+<li class=""><strong>institution:</strong> Opta</li>
+<li class=""><strong>link:</strong> <a href="http://arxiv.org/pdf/2509.24305v1" target="_blank" rel="noopener noreferrer" class="">http://arxiv.org/pdf/2509.24305v1</a></li>
+<li class=""><strong>Simple LLM Summary:</strong> This paper introduces two new algorithms, Rennala NIGT and Malenia NIGT, for asynchronous policy gradient aggregation in distributed reinforcement learning. Rennala NIGT improves computational and communication complexity in homogeneous settings, while Malenia NIGT handles heterogeneous environments with better theoretical guarantees. Experimental results show both methods significantly outperform prior approaches.</li>
+</ul>
+</li>
+<li class="">
+<p><strong>[arXiv2509] RServe: Overlapping Encoding and Prefill for Efficient LMM Inference</strong></p>
+<ul>
+<li class=""><strong>tags:</strong> [mlsys], [LLM inference], [multimodal models, inference serving, scheduling, parallelism, latency optimization]</li>
+<li class=""><strong>authors:</strong> Tianyu Guo, Tianming Xu, Xianjie Chen, Junru Chen, Nong Xiao, Xianwei Zhang</li>
+<li class=""><strong>institution:</strong> Sun Yat-sen University, Rednote</li>
+<li class=""><strong>link:</strong> <a href="http://arxiv.org/pdf/2509.24381v1" target="_blank" rel="noopener noreferrer" class="">http://arxiv.org/pdf/2509.24381v1</a></li>
+<li class=""><strong>Simple LLM Summary:</strong> REDServe proposes a novel scheduling strategy that overlaps multimodal encoding with language model computation within requests and balances computational loads across requests using schedulable tokens and token budgets. The system achieves up to 66% latency reduction and 109% throughput improvement compared to existing approaches. This demonstrates significant performance gains in large multimodal model inference serving through improved intra- and inter-request parallelism.</li>
+</ul>
+</li>
+<li class="">
+<p><strong>[arXiv2509] Experience Deploying Containerized GenAI Services at an HPC Center</strong></p>
+<ul>
+<li class=""><strong>tags:</strong> [mlsys], [LLM inference], [containerization, HPC, Kubernetes, vLLM, converged computing, reproducibility]</li>
+<li class=""><strong>authors:</strong> Angel M. Beltre, Jeff Ogden, Kevin Pedretti</li>
+<li class=""><strong>institution:</strong> Sandia National Laboratories</li>
+<li class=""><strong>link:</strong> <a href="http://arxiv.org/pdf/2509.20603v2" target="_blank" rel="noopener noreferrer" class="">http://arxiv.org/pdf/2509.20603v2</a></li>
+<li class=""><strong>Simple LLM Summary:</strong> The paper presents a converged computing architecture integrating HPC and Kubernetes platforms to deploy containerized GenAI services, specifically demonstrating Llama LLM deployment using vLLM inference server. This approach enables reproducible GenAI workload deployment across different computing environments using multiple container runtimes. The experience provides practical insights for HPC container community and guides future tool development for containerized AI service deployment.</li>
 </ul>
 </li>
 <li class="">
 <p><strong>[arXiv2509] Zeppelin: Balancing Variable-length Workloads in Data Parallel Large
 Model Training</strong></p>
 <ul>
-<li class=""><strong>tags:</strong> [mlsys], [LLM training], [load balancing, variable-length sequences, communication optimization, hierarchical partitioning, attention mechanisms, data-parallel training]</li>
+<li class=""><strong>tags:</strong> [mlsys], [LLM training], [distributed training, attention optimization, communication efficiency, load balancing, sequence partitioning]</li>
 <li class=""><strong>authors:</strong> Chang Chen, Tiancheng Chen, Jiangfei Duan, Qianchao Zhu, Zerui Wang, Qinghao Hu, Peng Sun, Xiuhong Li, Chao Yang, Torsten Hoefler</li>
 <li class=""><strong>institution:</strong> Peking University, ETH Zurich, The Chinese University of Hong Kong, Shanghai AI Laboratory, Nanyang Technological University</li>
 <li class=""><strong>link:</strong> <a href="http://arxiv.org/pdf/2509.21841v2" target="_blank" rel="noopener noreferrer" class="">http://arxiv.org/pdf/2509.21841v2</a></li>
-<li class=""><strong>Simple LLM Summary:</strong> Zeppelin introduces a hierarchical sequence partitioning method for attention modules, a routing layer for inter-node transfers, and a remapping layer for layout transformations. These techniques address load imbalance in large-scale data-parallel training with variable sequence lengths. The system achieves an average 2.80x speedup over state-of-the-art methods in comprehensive evaluations.</li>
-</ul>
-</li>
-<li class="">
-<p><strong>[arXiv2509] Data Scheduling Algorithm for Scalable and Efficient IoT Sensing in
-Cloud Computing</strong></p>
-<ul>
-<li class=""><strong>tags:</strong> [mlsys], [scheduling], [IoT data scheduling, reinforcement learning, ant colony optimization, cloud computing, resource optimization]</li>
-<li class=""><strong>authors:</strong> Noor Islam S. Mohammad</li>
-<li class=""><strong>institution:</strong> IEEE (based on publication venue)</li>
-<li class=""><strong>link:</strong> <a href="http://arxiv.org/pdf/2508.04334v2" target="_blank" rel="noopener noreferrer" class="">http://arxiv.org/pdf/2508.04334v2</a></li>
-<li class=""><strong>Simple LLM Summary:</strong> This paper proposes a hybrid scheduling algorithm combining deep reinforcement learning and ant colony optimization for IoT data processing in cloud environments. The method achieves significant improvements in response time (18.4% reduction), resource utilization (12.7% improvement), and energy consumption (9.3% decrease) compared to existing approaches. The integration of model-free RL with swarm intelligence proves effective for scalable and energy-efficient IoT-cloud data scheduling.</li>
+<li class=""><strong>Simple LLM Summary:</strong> Zeppelin introduces a hierarchical sequence partitioning method for attention modules, a routing layer for inter-node transfers, and a remapping layer for layout transformations between modules. The system addresses load imbalance in data-parallel LLM training with variable sequence lengths. Evaluations show Zeppelin achieves an average 2.80× speedup over state-of-the-art methods.</li>
 </ul>
 </li>
 <li class="">
 <p><strong>[arXiv2509] A Scalable Distributed Framework for Multimodal GigaVoxel Image
 Registration</strong></p>
 <ul>
-<li class=""><strong>tags:</strong> [mlsys], [kernels], [image registration, distributed computing, GPU optimization, medical imaging, tensor sharding, memory efficiency]</li>
+<li class=""><strong>tags:</strong> [mlsys], [kernels], [image registration, distributed computing, GPU acceleration, medical imaging, memory optimization]</li>
 <li class=""><strong>authors:</strong> Rohit Jena, Vedant Zope, Pratik Chaudhari, James C. Gee</li>
 <li class=""><strong>institution:</strong> University of Pennsylvania</li>
 <li class=""><strong>link:</strong> <a href="http://arxiv.org/pdf/2509.25044v1" target="_blank" rel="noopener noreferrer" class="">http://arxiv.org/pdf/2509.25044v1</a></li>
-<li class=""><strong>Simple LLM Summary:</strong> The paper proposes FFDP, a distributed framework with optimized non-GEMM kernels for large-scale multimodal image registration. It enables convolution-aware tensor sharding and significantly accelerates existing pipelines while reducing memory usage. The method demonstrates unprecedented scalability by registering gigavoxel medical images efficiently on limited GPU resources.</li>
+<li class=""><strong>Simple LLM Summary:</strong> The paper proposes FFDP, a distributed framework with optimized non-GEMM kernels for large-scale multimodal image registration. It enables convolution-aware tensor sharding and achieves 6-7x speedup over existing methods while reducing memory consumption by 20-59%. The system successfully registered a 100-micron human brain MRI volume 570x larger than standard clinical data in about a minute using 8 GPUs.</li>
+</ul>
+</li>
+<li class="">
+<p><strong>[arXiv2509] Data Scheduling Algorithm for Scalable and Efficient IoT Sensing in
+Cloud Computing</strong></p>
+<ul>
+<li class=""><strong>tags:</strong> [mlsys], [scheduling], [reinforcement learning, ant colony optimization, IoT data scheduling, cloud computing, resource optimization]</li>
+<li class=""><strong>authors:</strong> Noor Islam S. Mohammad</li>
+<li class=""><strong>institution:</strong> New York University Tandon School of Engineering</li>
+<li class=""><strong>link:</strong> <a href="http://arxiv.org/pdf/2508.04334v2" target="_blank" rel="noopener noreferrer" class="">http://arxiv.org/pdf/2508.04334v2</a></li>
+<li class=""><strong>Simple LLM Summary:</strong> This paper proposes a hybrid scheduling algorithm combining deep reinforcement learning and ant colony optimization for IoT data scheduling in cloud environments. The method achieves significant improvements in response time (18.4% reduction), resource utilization (12.7% improvement), and energy consumption (9.3% decrease) compared to existing approaches. The integration of model-free RL with swarm intelligence proves effective for scalable and energy-efficient IoT-cloud data scheduling.</li>
 </ul>
 </li>
 </ul>
 <h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="2025-09-30">2025-09-30<a href="#2025-09-30" class="hash-link" aria-label="Direct link to 2025-09-30" title="Direct link to 2025-09-30" translate="no">​</a></h2>
 <ul>
+<li class="">
+<p><strong>[arXiv2509] I Like To Move It -- Computation Instead of Data in the Brain</strong></p>
+<ul>
+<li class=""><strong>tags:</strong> [mlsys], [Other models inference], [brain simulation, structural plasticity, connectome, spike exchange, computational efficiency, Barnes-Hut approximation]</li>
+<li class=""><strong>authors:</strong> Fabian Czappa, Marvin Kaster, Felix Wolf</li>
+<li class=""><strong>institution:</strong> RWTH Aachen University</li>
+<li class=""><strong>link:</strong> <a href="http://arxiv.org/pdf/2509.26193v1" target="_blank" rel="noopener noreferrer" class="">http://arxiv.org/pdf/2509.26193v1</a></li>
+<li class=""><strong>Simple LLM Summary:</strong> The paper introduces a new algorithm that reduces communication overhead in brain simulations by moving computation instead of data. This approach decreases connectivity update time by a factor of six and spike exchange time by over two orders of magnitude. The method enhances scalability for simulating large-scale neural networks with structural plasticity.</li>
+</ul>
+</li>
+<li class="">
+<p><strong>[arXiv2509] Parallax: Efficient LLM Inference Service over Decentralized Environment</strong></p>
+<ul>
+<li class=""><strong>tags:</strong> [mlsys], [scheduling], [decentralized inference, LLM serving, heterogeneous GPUs, two-phase scheduler, model allocation, pipeline selection]</li>
+<li class=""><strong>authors:</strong> Chris Tong, Youhe Jiang, Gufeng Chen, Tianyi Zhao, Sibian Lu, Wenjie Qu, Eric Yang, Lynn Ai, Binhang Yuan</li>
+<li class=""><strong>institution:</strong> Gradient, HKUST, National University of Singapore</li>
+<li class=""><strong>link:</strong> <a href="http://arxiv.org/pdf/2509.26182v1" target="_blank" rel="noopener noreferrer" class="">http://arxiv.org/pdf/2509.26182v1</a></li>
+<li class=""><strong>Simple LLM Summary:</strong> Parallax introduces a decentralized LLM serving system with a two-phase scheduler that allocates model layers across heterogeneous GPUs and dynamically selects execution pipelines. It optimizes latency and throughput under memory and network constraints. Evaluation shows consistent improvements over baselines, making volunteer computing practical for LLM inference.</li>
+</ul>
+</li>
 <li class="">
 <p><strong>[arXiv2509] Artificial Intelligence for Cost-Aware Resource Prediction in Big Data
 Pipelines</strong></p>
@@ -154,110 +174,80 @@ Pipelines</strong></p>
 <li class=""><strong>authors:</strong> Harshit Goyal</li>
 <li class=""><strong>institution:</strong> BITS Pilani</li>
 <li class=""><strong>link:</strong> <a href="http://arxiv.org/pdf/2510.05127v1" target="_blank" rel="noopener noreferrer" class="">http://arxiv.org/pdf/2510.05127v1</a></li>
-<li class=""><strong>Simple LLM Summary:</strong> This paper uses Random Forest regression on Google Borg cluster traces to predict resource utilization in big data pipelines. The model achieves high accuracy (R²≈0.99) in capturing non-linear workload-resource relationships. Results demonstrate AI-driven prediction enables cost-aware autoscaling, reducing unnecessary provisioning while maintaining service quality.</li>
-</ul>
-</li>
-<li class="">
-<p><strong>[arXiv2509] Accelerating LLM Inference with Precomputed Query Storage</strong></p>
-<ul>
-<li class=""><strong>tags:</strong> [mlsys], [LLM inference], [query caching, storage optimization, latency reduction, edge computing, vector database]</li>
-<li class=""><strong>authors:</strong> Jay H. Park, Youngju Cho, Choungsol Lee, Moonwook Oh, Euiseong Seo</li>
-<li class=""><strong>institution:</strong> Samsung Electronics, Sungkyunkwan University</li>
-<li class=""><strong>link:</strong> <a href="http://arxiv.org/pdf/2509.25919v1" target="_blank" rel="noopener noreferrer" class="">http://arxiv.org/pdf/2509.25919v1</a></li>
-<li class=""><strong>Simple LLM Summary:</strong> StorInfer accelerates LLM inference by precomputing and storing query-response pairs offline, using adaptive generation techniques to ensure diversity. When incoming queries match precomputed ones, it bypasses GPU computation for instant responses. This approach reduces latency by up to 17.3% without quality loss, demonstrating efficient storage-assisted inference for predictable query scenarios.</li>
-</ul>
-</li>
-<li class="">
-<p><strong>[arXiv2509] SysMoBench: Evaluating AI on Formally Modeling Complex Real-World
-Systems</strong></p>
-<ul>
-<li class=""><strong>tags:</strong> [mlsys], [LLM inference], [formal modeling, system specification, TLA+, concurrent systems, distributed systems, benchmark evaluation]</li>
-<li class=""><strong>authors:</strong> Qian Cheng, Ruize Tang, Emilie Ma, Finn Hackett, Peiyang He, Yiming Su, Ivan Beschastnikh, Yu Huang, Xiaoxing Ma, Tianyin Xu</li>
-<li class=""><strong>institution:</strong> Nanjing University, University of British Columbia, University of Illinois Urbana-Champaign</li>
-<li class=""><strong>link:</strong> <a href="http://arxiv.org/pdf/2509.23130v2" target="_blank" rel="noopener noreferrer" class="">http://arxiv.org/pdf/2509.23130v2</a></li>
-<li class=""><strong>Simple LLM Summary:</strong> This paper introduces SysMoBench, a benchmark for evaluating AI&#x27;s ability to generate formal models of complex concurrent and distributed systems using TLA+. It automates evaluation metrics including syntactic correctness and conformance to system code. The benchmark helps understand current LLM capabilities and limitations in formal system modeling, opening new research directions.</li>
-</ul>
-</li>
-<li class="">
-<p><strong>[arXiv2509] Parallax: Efficient LLM Inference Service over Decentralized Environment</strong></p>
-<ul>
-<li class=""><strong>tags:</strong> [mlsys], [scheduling], [decentralized inference, GPU heterogeneity, two-phase scheduler, model allocation, pipeline selection]</li>
-<li class=""><strong>authors:</strong> Chris Tong, Youhe Jiang, Gufeng Chen, Tianyi Zhao, Sibian Lu, Wenjie Qu, Eric Yang, Lynn Ai, Binhang Yuan</li>
-<li class=""><strong>institution:</strong> Gradient, HKUST, National University of Singapore</li>
-<li class=""><strong>link:</strong> <a href="http://arxiv.org/pdf/2509.26182v1" target="_blank" rel="noopener noreferrer" class="">http://arxiv.org/pdf/2509.26182v1</a></li>
-<li class=""><strong>Simple LLM Summary:</strong> Parallax introduces a decentralized LLM serving system with a two-phase scheduler that optimizes model allocation across heterogeneous GPUs and performs request-time pipeline selection. It effectively handles GPU diversity and network constraints by distributing model layers and creating dynamic execution chains. The system demonstrates improved latency and throughput compared to baseline approaches, making volunteer computing viable for LLM inference.</li>
-</ul>
-</li>
-<li class="">
-<p><strong>[arXiv2509] Efficient Construction of Large Search Spaces for Auto-Tuning</strong></p>
-<ul>
-<li class=""><strong>tags:</strong> [mlsys], [kernels], [auto-tuning, constraint satisfaction problem, search space construction, performance optimization]</li>
-<li class=""><strong>authors:</strong> Floris-Jan Willemsen, Rob V. van Nieuwpoort, Ben van Werkhoven</li>
-<li class=""><strong>institution:</strong> Leiden University, Netherlands eScience Center</li>
-<li class=""><strong>link:</strong> <a href="http://arxiv.org/pdf/2509.26253v1" target="_blank" rel="noopener noreferrer" class="">http://arxiv.org/pdf/2509.26253v1</a></li>
-<li class=""><strong>Simple LLM Summary:</strong> This paper reformulates search space construction for auto-tuning as a Constraint Satisfaction Problem (CSP) and develops an optimized CSP solver with runtime parsing capabilities. The approach achieves 4 orders of magnitude speedup over brute-force methods and 1-2 orders of magnitude improvement over chain-of-trees frameworks. This breakthrough enables exploration of previously unattainable problem scales in auto-tuning domains.</li>
-</ul>
-</li>
-<li class="">
-<p><strong>[arXiv2509] AGOCS -- Accurate Google Cloud Simulator Framework</strong></p>
-<ul>
-<li class=""><strong>tags:</strong> [mlsys], [trace analysis], [cloud workload simulation, google cluster traces, resource usage statistics, parallel execution, scala implementation]</li>
-<li class=""><strong>authors:</strong> Leszek Sliwko, Vladimir Getov</li>
-<li class=""><strong>institution:</strong> University of Westminster</li>
-<li class=""><strong>link:</strong> <a href="http://arxiv.org/pdf/2509.26120v1" target="_blank" rel="noopener noreferrer" class="">http://arxiv.org/pdf/2509.26120v1</a></li>
-<li class=""><strong>Simple LLM Summary:</strong> AGOCS is a high-fidelity cloud workload simulator that parses real Google cluster traces from 12,500 nodes over one month. The framework provides detailed parameters of jobs, tasks, and nodes with actual resource usage statistics. Implemented in Scala with parallel execution capabilities, it enables accurate cloud workload simulation on desktop machines for research purposes.</li>
-</ul>
-</li>
-<li class="">
-<p><strong>[arXiv2509] LoRAFusion: Efficient LoRA Fine-Tuning for LLMs</strong></p>
-<ul>
-<li class=""><strong>tags:</strong> [mlsys], [finetuning], [LoRA, parameter-efficient fine-tuning, kernel optimization, scheduling algorithm, multi-job fine-tuning]</li>
-<li class=""><strong>authors:</strong> Zhanda Zhu, Qidong Su, Yaoyao Ding, Kevin Song, Shang Wang, Gennady Pekhimenko</li>
-<li class=""><strong>institution:</strong> University of Toronto, Vector Institute, NVIDIA</li>
-<li class=""><strong>link:</strong> <a href="http://arxiv.org/pdf/2510.00206v1" target="_blank" rel="noopener noreferrer" class="">http://arxiv.org/pdf/2510.00206v1</a></li>
-<li class=""><strong>Simple LLM Summary:</strong> LoRAFusion introduces kernel-level graph-splitting to fuse memory-bound operations and a scheduling-level adaptive batching algorithm for multi-job fine-tuning. This system eliminates redundant memory accesses and enables concurrent fine-tuning of multiple LoRA adapters. The approach achieves up to 1.96× speedup over existing systems while maintaining model quality.</li>
-</ul>
-</li>
-<li class="">
-<p><strong>[arXiv2509] I Like To Move It -- Computation Instead of Data in the Brain</strong></p>
-<ul>
-<li class=""><strong>tags:</strong> [mlsys], [Other models inference], [brain simulation, structural plasticity, spike exchange, computational neuroscience, Barnes-Hut algorithm, communication optimization]</li>
-<li class=""><strong>authors:</strong> Fabian Czappa, Marvin Kaster, Felix Wolf</li>
-<li class=""><strong>institution:</strong> Technical University of Darmstadt (based on authors&#x27; affiliations)</li>
-<li class=""><strong>link:</strong> <a href="http://arxiv.org/pdf/2509.26193v1" target="_blank" rel="noopener noreferrer" class="">http://arxiv.org/pdf/2509.26193v1</a></li>
-<li class=""><strong>Simple LLM Summary:</strong> The paper presents a novel algorithm that reduces communication overhead in brain simulations by moving computation instead of data. This approach decreases connectivity update time by 6x and spike exchange time by over 100x. The method enables more scalable simulation of neural networks with structural plasticity for studying brain functions like memory and learning.</li>
+<li class=""><strong>Simple LLM Summary:</strong> This paper uses Random Forest regression on Google Borg cluster traces to predict resource utilization in big data pipelines. The model achieves high accuracy (R²≈0.99) in capturing non-linear workload-resource relationships. Results demonstrate AI-driven prediction enables cost-aware autoscaling while maintaining service quality in cloud environments.</li>
 </ul>
 </li>
 <li class="">
 <p><strong>[arXiv2509] Tuning the Tuner: Introducing Hyperparameter Optimization for
 Auto-Tuning</strong></p>
 <ul>
-<li class=""><strong>tags:</strong> [mlsys], [others], [hyperparameter optimization, auto-tuning, performance optimization, search space, statistical evaluation]</li>
+<li class=""><strong>tags:</strong> [mlsys], [others], [hyperparameter optimization, auto-tuning, performance optimization, search space exploration]</li>
 <li class=""><strong>authors:</strong> Floris-Jan Willemsen, Rob V. van Nieuwpoort, Ben van Werkhoven</li>
 <li class=""><strong>institution:</strong> Leiden University, Netherlands eScience Center</li>
 <li class=""><strong>link:</strong> <a href="http://arxiv.org/pdf/2509.26300v1" target="_blank" rel="noopener noreferrer" class="">http://arxiv.org/pdf/2509.26300v1</a></li>
-<li class=""><strong>Simple LLM Summary:</strong> This paper introduces a novel method for hyperparameter tuning of optimization algorithms in auto-tuning systems. The authors propose a robust statistical evaluation approach, provide a FAIR dataset and simulation mode that reduces tuning costs by two orders of magnitude. Results show hyperparameter tuning improves auto-tuner performance by 94.8% on average, demonstrating its significant potential for advancing auto-tuning research and practice.</li>
+<li class=""><strong>Simple LLM Summary:</strong> This paper introduces a method for hyperparameter tuning of optimization algorithms in auto-tuning systems, featuring a statistical evaluation approach and simulation mode that reduces tuning costs by two orders of magnitude. The research demonstrates that hyperparameter tuning improves auto-tuner performance by 94.8% on average and can be further optimized with meta-strategies for 204.7% improvement. The work establishes hyperparameter tuning as a powerful technique for advancing auto-tuning research and practice.</li>
+</ul>
+</li>
+<li class="">
+<p><strong>[arXiv2509] Efficient Construction of Large Search Spaces for Auto-Tuning</strong></p>
+<ul>
+<li class=""><strong>tags:</strong> [mlsys], [others], [auto-tuning, constraint satisfaction problem, search space construction, performance optimization, HPC]</li>
+<li class=""><strong>authors:</strong> Floris-Jan Willemsen, Rob V. van Nieuwpoort, Ben van Werkhoven</li>
+<li class=""><strong>institution:</strong> Leiden University, Netherlands eScience Center</li>
+<li class=""><strong>link:</strong> <a href="http://arxiv.org/pdf/2509.26253v1" target="_blank" rel="noopener noreferrer" class="">http://arxiv.org/pdf/2509.26253v1</a></li>
+<li class=""><strong>Simple LLM Summary:</strong> This paper reformulates search space construction for auto-tuning as a Constraint Satisfaction Problem (CSP) and develops an optimized CSP solver with runtime constraint translation. The approach achieves 4 orders of magnitude speedup over brute-force methods and 1-2 orders over chain-of-trees frameworks. This eliminates scalability barriers in auto-tuning, enabling exploration of previously unattainable problem scales.</li>
+</ul>
+</li>
+<li class="">
+<p><strong>[arXiv2509] LoRAFusion: Efficient LoRA Fine-Tuning for LLMs</strong></p>
+<ul>
+<li class=""><strong>tags:</strong> [mlsys], [finetuning], [LoRA, kernel fusion, adaptive batching, distributed training, parameter-efficient fine-tuning]</li>
+<li class=""><strong>authors:</strong> Zhanda Zhu, Qidong Su, Yaoyao Ding, Kevin Song, Shang Wang, Gennady Pekhimenko</li>
+<li class=""><strong>institution:</strong> University of Toronto, Vector Institute, NVIDIA</li>
+<li class=""><strong>link:</strong> <a href="http://arxiv.org/pdf/2510.00206v1" target="_blank" rel="noopener noreferrer" class="">http://arxiv.org/pdf/2510.00206v1</a></li>
+<li class=""><strong>Simple LLM Summary:</strong> LoRAFusion introduces kernel-level graph-splitting to fuse memory-bound operations and scheduling-level adaptive batching for multi-job fine-tuning. It achieves up to 1.96× speedup over Megatron-LM and 1.46× improvement over mLoRA while maintaining model quality. The system reduces redundant memory accesses and enables concurrent fine-tuning of multiple LoRA adapters on shared GPUs.</li>
+</ul>
+</li>
+<li class="">
+<p><strong>[arXiv2509] Rearchitecting Datacenter Lifecycle for AI: A TCO-Driven Framework</strong></p>
+<ul>
+<li class=""><strong>tags:</strong> [mlsys], [LLM inference], [datacenter lifecycle, TCO optimization, hardware refresh, power provisioning, cooling systems, networking, operational software]</li>
+<li class=""><strong>authors:</strong> Jovan Stojkovic, Chaojie Zhang, Íñigo Goiri, Ricardo Bianchini</li>
+<li class=""><strong>institution:</strong> University of Illinois Urbana-Champaign, Microsoft Azure Research</li>
+<li class=""><strong>link:</strong> <a href="http://arxiv.org/pdf/2509.26534v1" target="_blank" rel="noopener noreferrer" class="">http://arxiv.org/pdf/2509.26534v1</a></li>
+<li class=""><strong>Simple LLM Summary:</strong> This paper proposes a holistic framework for AI datacenter lifecycle management across building, hardware refresh, and operation stages. The framework co-optimizes decisions across power, cooling, networking, and refresh strategies while accounting for workload dynamics and hardware evolution. The proposed system reduces total cost of ownership by up to 40% compared to traditional approaches.</li>
+</ul>
+</li>
+<li class="">
+<p><strong>[arXiv2509] Accelerating LLM Inference with Precomputed Query Storage</strong></p>
+<ul>
+<li class=""><strong>tags:</strong> [mlsys], [LLM inference], [query caching, storage optimization, semantic matching, vector database, latency reduction]</li>
+<li class=""><strong>authors:</strong> Jay H. Park, Youngju Cho, Choungsol Lee, Moonwook Oh, Euiseong Seo</li>
+<li class=""><strong>institution:</strong> Samsung Electronics, Sungkyunkwan University</li>
+<li class=""><strong>link:</strong> <a href="http://arxiv.org/pdf/2509.25919v1" target="_blank" rel="noopener noreferrer" class="">http://arxiv.org/pdf/2509.25919v1</a></li>
+<li class=""><strong>Simple LLM Summary:</strong> StorInfer precomputes and stores query-response pairs offline, then uses semantic matching to retrieve stored responses during inference, bypassing GPU computation when possible. The system employs adaptive query generation techniques to maximize coverage while avoiding duplicates. Evaluation shows up to 17.3% latency reduction with no quality loss, demonstrating effective storage-assisted inference for predictable query distributions.</li>
+</ul>
+</li>
+<li class="">
+<p><strong>[arXiv2509] SysMoBench: Evaluating AI on Formally Modeling Complex Real-World
+Systems</strong></p>
+<ul>
+<li class=""><strong>tags:</strong> [mlsys], [LLM inference], [formal modeling, system verification, TLA+, benchmark evaluation, distributed systems, concurrent systems]</li>
+<li class=""><strong>authors:</strong> Qian Cheng, Ruize Tang, Emilie Ma, Finn Hackett, Peiyang He, Yiming Su, Ivan Beschastnikh, Yu Huang, Xiaoxing Ma, Tianyin Xu</li>
+<li class=""><strong>institution:</strong> Nanjing University, University of British Columbia, University of Illinois Urbana-Champaign</li>
+<li class=""><strong>link:</strong> <a href="http://arxiv.org/pdf/2509.23130v2" target="_blank" rel="noopener noreferrer" class="">http://arxiv.org/pdf/2509.23130v2</a></li>
+<li class=""><strong>Simple LLM Summary:</strong> This paper introduces SysMoBench, a benchmark for evaluating AI&#x27;s ability to generate formal models of complex real-world systems using TLA+. The research demonstrates current limitations in LLMs&#x27; capacity to accurately model complete systems while providing automated evaluation metrics. The benchmark enables systematic assessment of AI capabilities in formal system modeling and opens new research directions.</li>
 </ul>
 </li>
 <li class="">
 <p><strong>[arXiv2509] Efficient Distributed Training via Dual Batch Sizes and Cyclic
 Progressive Learning</strong></p>
 <ul>
-<li class=""><strong>tags:</strong> [mlsys], [Other models training], [distributed training, batch size optimization, progressive learning, parameter server, ResNet-18]</li>
+<li class=""><strong>tags:</strong> [mlsys], [Other models training], [distributed training, batch size optimization, progressive learning, parameter server, image resolution]</li>
 <li class=""><strong>authors:</strong> Kuan-Wei Lu, Ding-Yong Hong, Pangfeng Liu, Jan-Jan Wu</li>
-<li class=""><strong>institution:</strong> Academia Sinica</li>
+<li class=""><strong>institution:</strong> Academia Sinica, National Taiwan University</li>
 <li class=""><strong>link:</strong> <a href="http://arxiv.org/pdf/2509.26092v1" target="_blank" rel="noopener noreferrer" class="">http://arxiv.org/pdf/2509.26092v1</a></li>
-<li class=""><strong>Simple LLM Summary:</strong> This paper proposes a dual batch size learning scheme that uses both large and small batch sizes simultaneously to improve generalization while maintaining efficiency, combined with cyclic progressive learning that adjusts image resolution during training. The hybrid approach achieves better accuracy and faster training times compared to conventional methods. Experimental results show 3.3% accuracy improvement with 10.6% faster training on CIFAR-100 and 0.1% accuracy improvement with 35.7% faster training on ImageNet using ResNet-18.</li>
-</ul>
-</li>
-<li class="">
-<p><strong>[arXiv2509] Rearchitecting Datacenter Lifecycle for AI: A TCO-Driven Framework</strong></p>
-<ul>
-<li class=""><strong>tags:</strong> [mlsys], [LLM inference], [datacenter lifecycle, TCO optimization, GPU infrastructure, hardware refresh, operational software]</li>
-<li class=""><strong>authors:</strong> Jovan Stojkovic, Chaojie Zhang, Íñigo Goiri, Ricardo Bianchini</li>
-<li class=""><strong>institution:</strong> Microsoft Azure Research, University of Illinois Urbana-Champaign</li>
-<li class=""><strong>link:</strong> <a href="http://arxiv.org/pdf/2509.26534v1" target="_blank" rel="noopener noreferrer" class="">http://arxiv.org/pdf/2509.26534v1</a></li>
-<li class=""><strong>Simple LLM Summary:</strong> This paper proposes a holistic framework for managing AI datacenter lifecycle across building, hardware refresh, and operation stages. The framework co-optimizes decisions across these stages considering workload dynamics and hardware evolution. It achieves up to 40% TCO reduction compared to traditional approaches.</li>
+<li class=""><strong>Simple LLM Summary:</strong> This paper proposes a hybrid distributed training method combining dual batch sizes (using large batches for efficiency and small batches for generalization) with cyclic progressive learning (gradually increasing image resolution). Experimental results show the approach improves both accuracy and training efficiency on CIFAR-100 and ImageNet datasets compared to conventional methods.</li>
 </ul>
 </li>
 </ul>
@@ -284,6 +274,6 @@ and Fleet Optimization of Urban Air Mobility</strong></p>
 <li class=""><strong>Simple LLM Summary:</strong> This paper introduces LPSim, a large-scale parallel simulation framework using multi-GPU computing to co-optimize Urban Air Mobility demand, fleet operations, and ground transportation interactions. The extended equilibrium search algorithm forecasts demand and determines optimal fleet composition. Results from the San Francisco Bay Area case study show over 20 minutes&#x27; travel time savings for 230,000 trips, but highlight critical dependence on ground access integration and dynamic scheduling.</li>
 </ul>
 </li>
-</ul></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-edit-meta-row"><div class="col noPrint_WFHX"></div><div class="col lastUpdated_JAkA"><span class="theme-last-updated">Last updated<!-- --> on <b><time datetime="2025-10-24T13:11:58.000Z" itemprop="dateModified">Oct 24, 2025</time></b></span></div></div></footer></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/daily/20250922-20250928"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">20250922-20250928</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/daily/20251006-20251012"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">20251006-20251012</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#2025-09-29" class="table-of-contents__link toc-highlight">2025-09-29</a></li><li><a href="#2025-09-30" class="table-of-contents__link toc-highlight">2025-09-30</a></li><li><a href="#2025-10-05" class="table-of-contents__link toc-highlight">2025-10-05</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="footer__bottom text--center"><div class="footer__copyright">Copyright © 2025 DarkKnight996, Inc. Built with Docusaurus.</div></div></div></footer></div>
+</ul></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-edit-meta-row"><div class="col noPrint_WFHX"></div><div class="col lastUpdated_JAkA"><span class="theme-last-updated">Last updated<!-- --> on <b><time datetime="2025-10-24T13:33:08.000Z" itemprop="dateModified">Oct 24, 2025</time></b></span></div></div></footer></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/daily/20250922-20250928"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">20250922-20250928</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/daily/20251006-20251012"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">20251006-20251012</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#2025-09-29" class="table-of-contents__link toc-highlight">2025-09-29</a></li><li><a href="#2025-09-30" class="table-of-contents__link toc-highlight">2025-09-30</a></li><li><a href="#2025-10-05" class="table-of-contents__link toc-highlight">2025-10-05</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="footer__bottom text--center"><div class="footer__copyright">Copyright © 2025 DarkKnight996, Inc. Built with Docusaurus.</div></div></div></footer></div>
 </body>
 </html>
