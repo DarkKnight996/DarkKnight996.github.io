@@ -54,7 +54,7 @@ class CompletePaperProcessor:
     
     # ==================== arXiv论文获取功能 ====================
     
-    def fetch_arxiv_papers(self, categories=['cs.DC', 'cs.AI'], max_results=200, target_date=None):
+    def fetch_arxiv_papers(self, categories=['cs.DC', 'cs.AI'], max_results=2000, target_date=None):
         """
         从arXiv获取指定分类的论文
         
@@ -641,7 +641,7 @@ llm_summary: <2-3 sentences simple summary (method+conclusion)>
             print(f"\n==== 处理 {single_date} ====")
             # 1. 从arXiv获取论文
             print("步骤1: 从arXiv获取论文...")
-            papers = self.fetch_arxiv_papers(categories=categories, max_results=10000, target_date=single_date)
+            papers = self.fetch_arxiv_papers(categories=categories, max_results=2000, target_date=single_date)
             
             if not papers:
                 print(f"日期 {single_date} 没有找到论文")
