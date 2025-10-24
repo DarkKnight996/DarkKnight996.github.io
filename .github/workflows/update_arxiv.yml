@@ -20,7 +20,7 @@ jobs:
 
       - name: Install dependencies (if needed)
         run: |
-          pip install requests  # 或其他依赖
+          pip install -r requirements.txt  # 或其他依赖
 
       - name: Run script with today's date
         run: python get_daily_arxiv_paper.py
