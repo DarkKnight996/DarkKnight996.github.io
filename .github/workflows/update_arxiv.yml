@@ -30,8 +30,14 @@ jobs:
         run: python get_daily_arxiv_paper.py
 
       - name: Commit and push changes
+        env:
+          CUSTOM_GITHUB_TOKEN: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${CUSTOM_GITHUB_TOKEN}@github.com/${{ github.repository }}.git
           git add .
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update arXiv paper for $(date -d 'yesterday' +%Y-%m-%d)" && git push)
+          if ! git diff --quiet && ! git diff --staged --quiet; then
+            git commit -m "Auto-update arXiv paper for $(date -d 'yesterday' +%Y-%m-%d)"
+            git push
+          fi
