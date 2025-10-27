@@ -2,9 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 完整的论文处理脚本
-合并了arXiv论文获取和增强处理功能
-支持传入一个日期或者一个日期段
-只需要指定日期或日期段，就可以自动获取论文、调用LLM分析并更新到markdown中
+只支持单个日期，不再支持日期段
 """
 
 import requests
@@ -53,40 +51,28 @@ class CompletePaperProcessor:
                 os.makedirs(directory)
     
     # ==================== arXiv论文获取功能 ====================
-    
+
     def fetch_arxiv_papers(self, categories=['cs.DC', 'cs.AI'], max_results=2000, target_date=None):
         """
-        从arXiv获取指定分类的论文
+        从arXiv获取指定分类的论文，并根据papers.jsonl去重与增补
         
         Args:
             categories (list): 论文分类列表
             max_results (int): 最大获取数量
-            target_date (str|list): 目标日期，格式为 'YYYY-MM-DD' 或 ['YYYY-MM-DD', 'YYYY-MM-DD']
+            target_date (str): 目标日期，格式为 'YYYY-MM-DD'，本函数只考虑单个日期
             
         Returns:
-            list: 论文列表
+            list: 论文列表（未在papers.jsonl中出现的新论文）
         """
-        if isinstance(target_date, list) and len(target_date) == 2:
-            # 传入的是日期段 ["2024-06-01", "2024-06-05"]
-            date_range = target_date
-        elif isinstance(target_date, str) and "-" in target_date:
-            # 传入格式 'YYYY-MM-DD:YYYY-MM-DD' 例如 '2024-06-01:2024-06-05'
-            if ":" in target_date:
-                date_range = [d.strip() for d in target_date.split(":")]
-                if len(date_range) != 2:
-                    date_range = None
-            else:
-                date_range = None
-        else:
-            date_range = None
-
         all_papers = []
-        seen_papers = set()  # 用于去重的集合，存储论文ID
-        
+        seen_papers = set()
+        if not isinstance(target_date, str):
+            print("只支持单个日期！target_date应为'YYYY-MM-DD'字符串。")
+            return []
+
+        # 收集arXiv数据
         for category in categories:
             print(f"正在获取 {category} 分类的论文信息...")
-            
-            # 构建查询URL
             search_query = f'cat:{category}'
             params = {
                 'search_query': search_query,
@@ -94,30 +80,21 @@ class CompletePaperProcessor:
                 'sortBy': 'submittedDate',
                 'sortOrder': 'descending'
             }
-            
             try:
                 response = requests.get('http://export.arxiv.org/api/query', params=params, timeout=30)
                 response.raise_for_status()
-                
-                # 解析XML响应
                 root = ET.fromstring(response.content)
                 ns = {'arxiv': 'http://www.w3.org/2005/Atom'}
-                
-                # 提取论文信息
+                print(f"Found {len(root.findall('arxiv:entry', ns))} papers")
                 for entry in root.findall('arxiv:entry', ns):
                     paper_info = self._extract_paper_info(entry, ns)
                     if paper_info:
                         paper_id = paper_info.get('id', '')
-                        
-                        # 检查是否已经处理过这篇论文
                         if paper_id in seen_papers:
                             print(f"跳过重复论文: {paper_info.get('title', 'N/A')}")
                             continue
-                        
-                        # 根据分类进行筛选
                         should_add = False
                         if category == 'cs.AI' or category == 'cs.LG':
-                            # 仅保留摘要中含有 accelerate/accelerating/acceleration 的cs.AI/cs.LG论文
                             summary_lower = paper_info.get("summary", "").lower()
                             if (
                                 "accelerate" in summary_lower
@@ -126,32 +103,58 @@ class CompletePaperProcessor:
                             ):
                                 should_add = True
                         else:
-                            # cs.DC等分类直接添加
                             should_add = True
-                        
                         if should_add:
                             all_papers.append(paper_info)
                             seen_papers.add(paper_id)
-                
                 print(f"成功获取 {category} 分类 {len([p for p in all_papers if any(cat in p.get('categories', []) for cat in [category])])} 篇论文")
-                
+                for i, paper in enumerate([p for p in all_papers if any(cat in p.get('categories', []) for cat in [category])]):
+                    print(f"{i+1}. {paper.get('title', 'N/A')}")
             except Exception as e:
                 print(f"获取 {category} 分类论文失败: {e}")
-        
+
         print(f"去重后总共 {len(all_papers)} 篇论文")
-        
-        # 按日期筛选
-        if date_range:
-            filtered_papers = self.filter_by_updated_date_range(all_papers, date_range[0], date_range[1])
-            print(f"按日期段 {date_range[0]} ~ {date_range[1]} 筛选后剩余 {len(filtered_papers)} 篇论文")
-            return filtered_papers
-        elif target_date:
-            if isinstance(target_date, str) and len(target_date) == 10:
-                filtered_papers = self.filter_by_updated_date(all_papers, target_date)
-                print(f"按日期 {target_date} 筛选后剩余 {len(filtered_papers)} 篇论文")
-                return filtered_papers
-        
-        return all_papers
+
+        # 读取papers.jsonl已有的论文id
+        papers_jsonl_path = os.path.join(self.docs_daily_path, "papers.jsonl")
+        existing_ids = set()
+        if os.path.exists(papers_jsonl_path):
+            with open(papers_jsonl_path, "r", encoding="utf-8") as fin:
+                for line in fin:
+                    try:
+                        paper = json.loads(line.strip())
+                        pid = paper.get("id")
+                        if pid:
+                            existing_ids.add(pid)
+                    except Exception:
+                        continue
+
+        # 过滤掉已在papers.jsonl中的论文
+        filtered_papers = [p for p in all_papers if p.get("id") not in existing_ids]
+
+        print(f"过滤后剩余 {len(filtered_papers)} 篇论文需要添加到papers.jsonl")
+
+        # 将新论文追加进papers.jsonl，并准备返回列表
+        fout = None
+        with open(papers_jsonl_path, "a", encoding="utf-8") as fout:
+            fout.write("\n")
+            for paper in filtered_papers:
+                out_item = {
+                    "announced_date": target_date,
+                    "categories": paper.get("categories", []),
+                    "title": paper.get("title", ""),
+                    "id": paper.get("id", ""),
+                    "published_date": paper.get("published", ""),
+                    "updated_date": paper.get("updated", "")
+                }
+                fout.write(json.dumps(out_item, ensure_ascii=False) + "\n")
+
+        for i, paper in enumerate(filtered_papers):
+            print(f"{i+1}. {paper.get('title', 'N/A')}")
+
+        print(f"total {len(filtered_papers)} new papers added to papers.jsonl")
+
+        return filtered_papers
     
     def _extract_paper_info(self, entry, ns):
         """从XML条目中提取论文信息"""
@@ -224,26 +227,10 @@ class CompletePaperProcessor:
                 pass
         return filtered_papers
 
-    def filter_by_updated_date_range(self, papers, start_date, end_date):
-        """根据updated日期段筛选论文, 包含边界日期"""
-        filtered_papers = []
-        try:
-            start_dt = datetime.strptime(start_date, '%Y-%m-%d')
-            end_dt = datetime.strptime(end_date, '%Y-%m-%d')
-        except Exception:
-            print("日期段格式错误，使用YYYY-MM-DD,YYYY-MM-DD")
-            return []
-        for paper in papers:
-            updated_field = paper.get('updated', '')
-            try:
-                dt = datetime.fromisoformat(updated_field.replace('Z', ''))
-                # 包含边界
-                if start_dt <= dt.replace(tzinfo=None) <= end_dt:
-                    filtered_papers.append(paper)
-            except Exception:
-                pass
-        return filtered_papers
-    
+    # 日期段相关功能移除，不再支持
+    # def filter_by_updated_date_range(self, papers, start_date, end_date):
+    #     ...
+
     # ==================== PDF处理和LLM分析功能 ====================
     # ...无更改，省略...
 
@@ -287,14 +274,12 @@ Title: {title}
 Abstract: {abstract}
 First Page Content: {first_page_text}
 
-请为以上文章分类标签，一共有三层标签，分别为tag1, tag2, tag3。首先根据是否是sys分类为ai, sys/mlsys, 接着继续分类sys/mlsys，根据和LLM或者diffusion或者machine learning或者deep learning或者AI有关，只要有关就是mlsys，否则就是sys，第一个标签tag1为mlsys/sys，第二层标签tag2更细粒度，比如如果是mlsys，那就细分为: LLM inference, LLM training, Other models inference, Other models training, edge computing, post-training, checkpointing, finetuning, trace analysis, cluster infrastructure, scheduling, kernels, security, federated learning, others这几种，如果是sys就分为hardware, compiler, quantum computing, operating system, cluster management, memory, network, filesystem, computation, fault-tolerance, security, programming languages, serverless, others这几种。第三层tag就根据文章内容总结关键词进行分类，第三层的标签可以是list，用逗号隔开。
+请为以上文章分类标签，一共有三层标签，分别为tag1, tag2, tag3。首先根据是否是sys分类为ai, sys/mlsys, 接着继续分类sys/mlsys，根据和LLM或者diffusion或者machine learning或者deep learning或者AI有关，只要有关就是mlsys，否则就是sys，第一个标签tag1为mlsys/sys，第二层标签tag2更细粒度，比如如果是mlsys，那就细分为: ai for science, LLM inference, LLM training, post-training, Other models training, Other models inference, edge computing, checkpointing, finetuning, trace analysis, cluster infrastructure, scheduling, kernels, security, federated learning, others这几种，如果是sys就分为hardware, compiler, quantum computing, operating system, cluster management, memory, network, filesystem, computation, fault-tolerance, security, programming languages, serverless, others这几种。第三层tag就根据文章内容总结关键词进行分类，第三层的标签可以是list，用逗号隔开。
 
 另外，请根据作者信息和第一页内容推断论文的主要研究机构，可能会有多个机构，如果没有机构名的话，从作者的邮箱后缀判断。
 
 最后，帮我判断我是否会对这篇文章感兴趣，判断标准如下：
-- 如果内容和reinforcement learning有关，无论什么方向，我都感兴趣；
-- 或者是任何mlsys相关内容（即只要tag1为mlsys），且tag2不是security、edge computing、federated learning时，我感兴趣；
-- 只要满足一个即可认为我感兴趣。
+- 如果tag1是mlsys，且tag2不是security, edge computing, mobile computing, federated learning, ai for science时，我都感兴趣；
 
 请以如下格式输出，并在最后输出2-3句话对论文的主要方法和结论进行简单LLM总结（英文即可），不带多余解释说明或代码块：
 
@@ -506,6 +491,7 @@ llm_summary: <2-3 sentences simple summary (method+conclusion)>
             for paper in interested_papers:
                 papers_content += self.format_paper_with_enhanced_info(paper, date_str=date_str)
         else:
+            print("No interesting papers for me today")
             papers_content += "No interesting papers for me today\n"
 
         replaced = False
@@ -593,102 +579,76 @@ llm_summary: <2-3 sentences simple summary (method+conclusion)>
     
     def process_papers_by_date(self, target_date, categories=['cs.DC', 'cs.AI'], max_workers=2, max_papers=10):
         """
-        根据指定日期或日期段处理论文的完整流程
-        
+        根据指定日期处理论文的完整流程
+
         Args:
-            target_date (str|list): 目标日期，格式为 'YYYY-MM-DD' 或 ["YYYY-MM-DD", "YYYY-MM-DD"]，或者 'YYYY-MM-DD:YYYY-MM-DD'
+            target_date (str): 目标日期，格式为 'YYYY-MM-DD'
             categories (list): 论文分类列表
             max_workers (int): 并发处理数量
             max_papers (int): 最大处理论文数量（用于测试）
         """
-        date_list = []
-        # 支持传入的target_date可以是日期字符串、['起始','结束']列表、或"起始:结束"
-        if isinstance(target_date, list) and len(target_date) == 2:
-            try:
-                start_dt = datetime.strptime(target_date[0], "%Y-%m-%d")
-                end_dt = datetime.strptime(target_date[1], "%Y-%m-%d")
-            except Exception:
-                print("日期段必须格式为['YYYY-MM-DD','YYYY-MM-DD']")
-                return
-            cur_dt = start_dt
-            while cur_dt <= end_dt:
-                date_list.append(cur_dt.strftime('%Y-%m-%d'))
-                cur_dt += timedelta(days=1)
-            process_desc = f"{target_date[0]} ~ {target_date[1]}"
-        elif isinstance(target_date, str) and ":" in target_date:
-            try:
-                start_str, end_str = [x.strip() for x in target_date.split(":")]
-                start_dt = datetime.strptime(start_str, "%Y-%m-%d")
-                end_dt = datetime.strptime(end_str, "%Y-%m-%d")
-            except Exception:
-                print("日期段必须格式为'YYYY-MM-DD:YYYY-MM-DD'")
-                return
-            cur_dt = start_dt
-            while cur_dt <= end_dt:
-                date_list.append(cur_dt.strftime('%Y-%m-%d'))
-                cur_dt += timedelta(days=1)
-            process_desc = f"{start_str} ~ {end_str}"
-        elif isinstance(target_date, str) and re.match(r'^\d{4}-\d{2}-\d{2}$', target_date):
-            date_list = [target_date]
-            process_desc = target_date
-        else:
-            print("target_date格式错误，必须是 'YYYY-MM-DD', 'YYYY-MM-DD:YYYY-MM-DD' 或 ['YYYY-MM-DD', 'YYYY-MM-DD']")
+        # 只支持单个日期
+        if not (isinstance(target_date, str) and re.match(r'^\d{4}-\d{2}-\d{2}$', target_date)):
+            print("target_date格式错误，只支持 'YYYY-MM-DD' 字符串")
             return
 
-        print(f"开始处理日期: {process_desc}")
-        
-        for single_date in date_list:
-            print(f"\n==== 处理 {single_date} ====")
-            # 1. 从arXiv获取论文
-            print("步骤1: 从arXiv获取论文...")
-            papers = self.fetch_arxiv_papers(categories=categories, max_results=2000, target_date=single_date)
-            
-            if not papers:
-                print(f"日期 {single_date} 没有找到论文")
-                continue
-            
-            # 限制处理数量（用于测试）
-            if max_papers and len(papers) > max_papers:
-                papers = papers[:max_papers]
-                print(f"限制处理前 {max_papers} 篇论文")
-            
-            print(f"找到 {len(papers)} 篇论文，开始处理...")
-            
-            # 2. 并发处理论文（下载PDF、调用LLM）
-            print("步骤2: 处理论文（下载PDF、调用LLM）...")
-            processed_papers = []
-            
-            with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-                # 提交所有任务
-                future_to_paper = {
-                    executor.submit(self.process_single_paper, paper): paper 
-                    for paper in papers
-                }
-                
-                # 收集结果
-                for future in tqdm(concurrent.futures.as_completed(future_to_paper), 
-                                 total=len(future_to_paper), desc="处理论文"):
-                    try:
-                        processed_paper = future.result()
-                        processed_papers.append(processed_paper)
-                    except Exception as e:
-                        print(f"处理论文时出错: {e}")
-            
-            # 3. 统计结果
-            interested_papers = [p for p in processed_papers if p.get('is_interested', False)]
-            print(f"处理完成！总共 {len(processed_papers)} 篇论文，其中 {len(interested_papers)} 篇感兴趣")
-            
-            # 4. 更新markdown文件
-            print("步骤3: 更新markdown文件...")
-            weekly_file = self.find_or_create_weekly_file(single_date)
-            if weekly_file:
-                self.update_markdown_file(weekly_file, processed_papers, single_date)
-                if interested_papers:
-                    print(f"处理完成！感兴趣的论文已添加到: {weekly_file}")
-                else:
-                    print(f"处理完成！已添加日期记录到: {weekly_file}")
+        print(f"开始处理日期: {target_date}")
+
+        single_date = target_date
+        print(f"\n==== 处理 {single_date} ====")
+        # 1. 从arXiv获取论文
+        print("步骤1: 从arXiv获取论文...")
+        papers = self.fetch_arxiv_papers(categories=categories, max_results=1024, target_date=single_date)
+
+        if not papers:
+            print(f"日期 {single_date} 没有找到论文")
+            return
+
+        # 限制处理数量（用于测试）
+        if max_papers and len(papers) > max_papers:
+            papers = papers[:max_papers]
+            print(f"限制处理前 {max_papers} 篇论文")
+
+        print(f"找到 {len(papers)} 篇论文，开始处理...")
+
+        # 2. 并发处理论文（下载PDF、调用LLM）
+        print("步骤2: 处理论文（下载PDF、调用LLM）...")
+        processed_papers = []
+
+        for i, paper in enumerate(papers):
+            print(f"{i+1}. {paper.get('title', 'N/A')}")
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+            # 提交所有任务
+            future_to_paper = {
+                executor.submit(self.process_single_paper, paper): paper 
+                for paper in papers
+            }
+
+            # 收集结果
+            for future in tqdm(concurrent.futures.as_completed(future_to_paper), 
+                             total=len(future_to_paper), desc="处理论文"):
+                try:
+                    processed_paper = future.result()
+                    processed_papers.append(processed_paper)
+                except Exception as e:
+                    print(f"处理论文时出错: {e}")
+
+        # 3. 统计结果
+        interested_papers = [p for p in processed_papers if p.get('is_interested', False)]
+        print(f"处理完成！总共 {len(processed_papers)} 篇论文，其中 {len(interested_papers)} 篇感兴趣")
+
+        # 4. 更新markdown文件
+        print("步骤3: 更新markdown文件...")
+        weekly_file = self.find_or_create_weekly_file(single_date)
+        if weekly_file:
+            self.update_markdown_file(weekly_file, processed_papers, single_date)
+            if interested_papers:
+                print(f"处理完成！感兴趣的论文已添加到: {weekly_file}")
             else:
-                print("无法创建或找到周文件")
+                print(f"处理完成！已添加日期记录到: {weekly_file}")
+        else:
+            print("无法创建或找到周文件")
 
 def main():
     """
@@ -706,12 +666,8 @@ def main():
     # 创建处理器
     processor = CompletePaperProcessor()
     
-    # 指定要处理的日期或区间
-    # target_date = "2025-10-23"  # 单日
-    # target_date = ["2025-10-16", "2025-10-18"]  # 日期段列表
-    # target_date = "2025-10-16:2025-10-18"       # 日期段字符串
-    # target_date = "2025-09-01:2025-09-30"        # Demo请切换需要的类型
-    target_date = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d') # 昨天日期
+    # 指定要处理的日期（只支持单天，格式'YYYY-MM-DD'）
+    target_date = datetime.now().strftime('%Y-%m-%d') # 今天日期
 
     # 处理论文
     processor.process_papers_by_date(
