@@ -506,7 +506,7 @@ llm_summary: <2-3 sentences simple summary (method+conclusion)>
             for paper in interested_papers:
                 papers_content += self.format_paper_with_enhanced_info(paper, date_str=date_str)
         else:
-            papers_content += "No interested papers today\n"
+            papers_content += "No interesting papers for me today\n"
 
         replaced = False
         # 如有则替换当前日期section
