@@ -483,9 +483,6 @@ llm_summary: <2-3 sentences simple summary (method+conclusion)>
 
         # 只保留感兴趣的论文
         interested_papers = [paper for paper in papers if paper.get('is_interested', False)]
-        if not interested_papers:
-            print("没有感兴趣的论文，无需写入")
-            return
 
         existing_content = ""
         if os.path.exists(filepath):
@@ -505,8 +502,11 @@ llm_summary: <2-3 sentences simple summary (method+conclusion)>
         
         # 新section内容
         papers_content = f"## {date_str}\n\n"
-        for paper in interested_papers:
-            papers_content += self.format_paper_with_enhanced_info(paper, date_str=date_str)
+        if interested_papers:
+            for paper in interested_papers:
+                papers_content += self.format_paper_with_enhanced_info(paper, date_str=date_str)
+        else:
+            papers_content += "No interested papers today\n"
 
         replaced = False
         # 如有则替换当前日期section
@@ -679,16 +679,16 @@ llm_summary: <2-3 sentences simple summary (method+conclusion)>
             print(f"处理完成！总共 {len(processed_papers)} 篇论文，其中 {len(interested_papers)} 篇感兴趣")
             
             # 4. 更新markdown文件
-            if interested_papers:
-                print("步骤3: 更新markdown文件...")
-                weekly_file = self.find_or_create_weekly_file(single_date)
-                if weekly_file:
-                    self.update_markdown_file(weekly_file, processed_papers, single_date)
+            print("步骤3: 更新markdown文件...")
+            weekly_file = self.find_or_create_weekly_file(single_date)
+            if weekly_file:
+                self.update_markdown_file(weekly_file, processed_papers, single_date)
+                if interested_papers:
                     print(f"处理完成！感兴趣的论文已添加到: {weekly_file}")
                 else:
-                    print("无法创建或找到周文件")
+                    print(f"处理完成！已添加日期记录到: {weekly_file}")
             else:
-                print("没有感兴趣的论文，无需更新markdown文件")
+                print("无法创建或找到周文件")
 
 def main():
     """
