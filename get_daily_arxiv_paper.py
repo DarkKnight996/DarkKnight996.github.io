@@ -541,7 +541,8 @@ llm_summary: <2-3 sentences simple summary (method+conclusion)>
         else:
             arxiv_prefix = ""
         if not any(cat == 'cs.DC' for cat in categories):
-            paper_link = paper.get('id', paper.get('pdf_link', ''))
+            pdf_link = paper.get('pdf_link', '')
+            paper_link = pdf_link if pdf_link and pdf_link != 'N/A' else paper.get('id', '')
             return f"- {arxiv_prefix} {title} [link]({paper_link})\n"
 
         # cs.DC 使用详细格式
