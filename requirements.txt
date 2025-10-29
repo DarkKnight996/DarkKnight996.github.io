@@ -2,3 +2,5 @@ requests>=2.25.0
 PyPDF2>=3.0.0
 openai>=1.0.0
 tqdm>=4.60.0
+bs4
+beautifulsoup4>=4.9.0
