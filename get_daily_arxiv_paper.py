@@ -16,6 +16,8 @@ from datetime import datetime, timedelta
 from openai import OpenAI
 import concurrent.futures
 from tqdm import tqdm
+from bs4 import BeautifulSoup
+import sys
 
 # PDF处理相关
 try:
@@ -24,6 +26,27 @@ try:
 except ImportError:
     PDF_AVAILABLE = False
     print("警告: PyPDF2未安装，无法处理PDF文件。请运行: pip install PyPDF2")
+
+def already_processed(date_str, filename="arxiv_date.txt"):
+    """检查 arxiv_date.txt 当前日期是否已处理过（date_str: yyyy-mm-dd）"""
+    if not os.path.exists(filename):
+        return False
+    try:
+        with open(filename, "r") as f:
+            lines = f.readlines()
+            yyyymmdd_list = set(line.strip() for line in lines if line.strip())
+        return date_str.replace('-', '') in yyyymmdd_list
+    except Exception as e:
+        print(f"读取 {filename} 错误: {e}")
+        return False
+
+def append_to_processed(date_str, filename="arxiv_date.txt"):
+    """处理完成后追加日期到 arxiv_date.txt（date_str: yyyy-mm-dd）"""
+    try:
+        with open(filename, "a") as f:
+            f.write(date_str.replace('-', '') + "\n")
+    except Exception as e:
+        print(f"写入 {filename} 错误: {e}")
 
 class CompletePaperProcessor:
     def __init__(self, docs_daily_path="docs/daily", temp_dir="temp_pdfs"):
@@ -54,107 +77,192 @@ class CompletePaperProcessor:
 
     def fetch_arxiv_papers(self, categories=['cs.DC', 'cs.AI'], max_results=2000, target_date=None):
         """
-        从arXiv获取指定分类的论文，并根据papers.jsonl去重与增补
+        从arXiv HTML页面获取指定分类的论文，并根据papers.jsonl去重与增补
         
         Args:
-            categories (list): 论文分类列表
+            categories (list): 论文分类列表（暂时忽略，从HTML获取所有cs分类）
             max_results (int): 最大获取数量
             target_date (str): 目标日期，格式为 'YYYY-MM-DD'，本函数只考虑单个日期
             
         Returns:
-            list: 论文列表（未在papers.jsonl中出现的新论文）
+            list: 论文列表（直接从HTML解析得到的论文，不再依赖papers.jsonl）
         """
         all_papers = []
         seen_papers = set()
-        if not isinstance(target_date, str):
-            print("只支持单个日期！target_date应为'YYYY-MM-DD'字符串。")
-            return []
 
-        # 收集arXiv数据
-        for category in categories:
-            print(f"正在获取 {category} 分类的论文信息...")
-            search_query = f'cat:{category}'
-            params = {
-                'search_query': search_query,
-                'max_results': max_results,
-                'sortBy': 'submittedDate',
-                'sortOrder': 'descending'
-            }
-            try:
-                response = requests.get('http://export.arxiv.org/api/query', params=params, timeout=30)
-                response.raise_for_status()
-                root = ET.fromstring(response.content)
-                ns = {'arxiv': 'http://www.w3.org/2005/Atom'}
-                print(f"Found {len(root.findall('arxiv:entry', ns))} papers")
-                for entry in root.findall('arxiv:entry', ns):
-                    paper_info = self._extract_paper_info(entry, ns)
-                    if paper_info:
-                        paper_id = paper_info.get('id', '')
-                        if paper_id in seen_papers:
-                            print(f"跳过重复论文: {paper_info.get('title', 'N/A')}")
-                            continue
-                        should_add = False
-                        if category == 'cs.AI' or category == 'cs.LG':
+        # 从arXiv HTML页面获取论文
+        print("正在从 https://arxiv.org/list/cs/new 获取论文信息...")
+        try:
+            response = requests.get('https://arxiv.org/list/cs/new', timeout=30)
+            response.raise_for_status()
+            
+            # 使用BeautifulSoup解析HTML
+            soup = BeautifulSoup(response.content, 'html.parser')
+            
+            # 查找所有论文条目
+            paper_entries = soup.find_all('dt')
+            print(f"Found {len(paper_entries)} papers in HTML")
+            
+            for entry in paper_entries:
+                paper_info = self._extract_paper_info_from_html(entry)
+                if paper_info:
+                    paper_id = paper_info.get('id', '')
+                    if paper_id in seen_papers:
+                        print(f"跳过重复论文: {paper_info.get('title', 'N/A')}")
+                        continue
+                    
+                    # 检查是否是revised version
+                    if paper_info.get('replaced', False):
+                        # print(f"跳过revised version的论文: {paper_info.get('title', 'N/A')}")
+                        continue
+                    
+                    # 应用筛选逻辑
+                    should_add = False
+                    paper_categories = paper_info.get('categories', [])
+                    
+                    # 先判断是否是cs.DC，是的话直接should_add，再判断cs.AI/cs.LG
+                    if "cs.DC" in paper_categories:
+                        should_add = True
+                    elif any(cat in paper_categories for cat in categories):
+                        if any(cat in ['cs.AI', 'cs.LG'] for cat in paper_categories):
                             summary_lower = paper_info.get("summary", "").lower()
-                            if (
-                                "accelerate" in summary_lower
-                                or "accelerating" in summary_lower
-                                or "acceleration" in summary_lower
-                            ):
+                            # 标注匹配情况以便后续统计
+                            paper_info['rl_match'] = "reinforcement learning" in summary_lower
+                            paper_info['accelerat_match'] = "accelerat" in summary_lower
+                            if paper_info['rl_match'] or paper_info['accelerat_match']:
                                 should_add = True
                         else:
                             should_add = True
-                        if should_add:
-                            all_papers.append(paper_info)
-                            seen_papers.add(paper_id)
-                print(f"成功获取 {category} 分类 {len([p for p in all_papers if any(cat in p.get('categories', []) for cat in [category])])} 篇论文")
-                for i, paper in enumerate([p for p in all_papers if any(cat in p.get('categories', []) for cat in [category])]):
-                    print(f"{i+1}. {paper.get('title', 'N/A')}")
-            except Exception as e:
-                print(f"获取 {category} 分类论文失败: {e}")
+                    
+                    if should_add:
+                        all_papers.append(paper_info)
+                        seen_papers.add(paper_id)
+            
+            print(f"成功获取 {len(all_papers)} 篇论文")
+            for i, paper in enumerate(all_papers):
+                print(f"{i+1}. {paper.get('title', 'N/A')}")
+                
+        except Exception as e:
+            print(f"获取论文失败: {e}")
+            return []
 
-        print(f"去重后总共 {len(all_papers)} 篇论文")
+        print(f"总共获取 {len(all_papers)} 篇论文")
 
-        # 读取papers.jsonl已有的论文id
-        papers_jsonl_path = os.path.join(self.docs_daily_path, "papers.jsonl")
-        existing_ids = set()
-        if os.path.exists(papers_jsonl_path):
-            with open(papers_jsonl_path, "r", encoding="utf-8") as fin:
-                for line in fin:
-                    try:
-                        paper = json.loads(line.strip())
-                        pid = paper.get("id")
-                        if pid:
-                            existing_ids.add(pid)
-                    except Exception:
-                        continue
-
-        # 过滤掉已在papers.jsonl中的论文
-        filtered_papers = [p for p in all_papers if p.get("id") not in existing_ids]
-
-        print(f"过滤后剩余 {len(filtered_papers)} 篇论文需要添加到papers.jsonl")
-
-        # 将新论文追加进papers.jsonl，并准备返回列表
-        fout = None
-        with open(papers_jsonl_path, "a", encoding="utf-8") as fout:
-            fout.write("\n")
-            for paper in filtered_papers:
-                out_item = {
-                    "announced_date": target_date,
-                    "categories": paper.get("categories", []),
-                    "title": paper.get("title", ""),
-                    "id": paper.get("id", ""),
-                    "published_date": paper.get("published", ""),
-                    "updated_date": paper.get("updated", "")
-                }
-                fout.write(json.dumps(out_item, ensure_ascii=False) + "\n")
-
-        for i, paper in enumerate(filtered_papers):
-            print(f"{i+1}. {paper.get('title', 'N/A')}")
-
-        print(f"total {len(filtered_papers)} new papers added to papers.jsonl")
-
-        return filtered_papers
+        # 不再依赖papers.jsonl，直接返回解析到的论文列表
+        return all_papers
+    
+    def _extract_paper_info_from_html(self, dt_entry):
+        """从HTML dt条目中提取论文信息"""
+        try:
+            # 获取对应的dd条目
+            dd_entry = dt_entry.find_next_sibling('dd')
+            if not dd_entry:
+                print("Debug: 未找到对应的dd条目")
+                return None
+            
+            # 提取arXiv ID和链接
+            arxiv_link = dt_entry.find('a', href=lambda x: x and '/abs/' in x)
+            if not arxiv_link:
+                print("Debug: 未找到arXiv链接")
+                return None
+            
+            href = arxiv_link.get('href', '')
+            if href.startswith('/'):
+                arxiv_id = href.split('/')[-1]
+                paper_id = f"http://arxiv.org/abs/{arxiv_id}"
+            else:
+                arxiv_id = href.split('/')[-1]
+                paper_id = href if href.startswith('http') else f"http://arxiv.org/abs/{arxiv_id}"
+            
+            # 检查是否有(replaced)标记
+            replaced = False
+            dt_text = dt_entry.get_text()
+            if '(replaced)' in dt_text:
+                replaced = True
+            
+            # 提取PDF链接
+            pdf_link = "N/A"
+            pdf_links = dt_entry.find_all('a', href=lambda x: x and '/pdf/' in x)
+            if pdf_links:
+                pdf_href = pdf_links[0].get('href', 'N/A')
+                if pdf_href.startswith('/'):
+                    pdf_link = f"https://arxiv.org{pdf_href}"
+                else:
+                    pdf_link = pdf_href
+            
+            # 提取标题
+            title_elem = dd_entry.find('div', class_='list-title')
+            title = "N/A"
+            if title_elem:
+                # 移除"Title:"描述符
+                title_text = title_elem.get_text(strip=True)
+                if title_text.startswith('Title:'):
+                    title = title_text[6:].strip()
+                else:
+                    title = title_text
+            
+            # 提取作者
+            authors = []
+            authors_elem = dd_entry.find('div', class_='list-authors')
+            if authors_elem:
+                author_links = authors_elem.find_all('a')
+                for author_link in author_links:
+                    authors.append(author_link.get_text(strip=True))
+            
+            # 提取分类
+            categories = []
+            subjects_elem = dd_entry.find('div', class_='list-subjects')
+            if subjects_elem:
+                # 查找所有分类链接
+                category_links = subjects_elem.find_all('a')
+                for cat_link in category_links:
+                    href = cat_link.get('href', '')
+                    if 'searchtype=subject' in href:
+                        # 从链接中提取分类代码
+                        match = re.search(r'query=([^&]+)', href)
+                        if match:
+                            categories.append(match.group(1))
+                # 如果没有找到分类链接，尝试从文本中提取
+                if not categories:
+                    text = subjects_elem.get_text()
+                    # 匹配类似 "Machine Learning (cs.LG)" 的模式
+                    matches = re.findall(r'\(([^)]+)\)', text)
+                    categories = [match for match in matches if match.startswith('cs.')]
+            
+            # 提取摘要
+            summary = "N/A"
+            abstract_elem = dd_entry.find('p', class_='mathjax')
+            if abstract_elem:
+                summary = abstract_elem.get_text(strip=True)
+            
+            # 提取发布时间（从arXiv ID中推断）
+            published = "N/A"
+            updated = "N/A"
+            if arxiv_id:
+                # arXiv ID格式通常是 YYMM.NNNNN
+                match = re.match(r'(\d{2})(\d{2})\.(\d+)', arxiv_id)
+                if match:
+                    year = "20" + match.group(1)  # 假设是20xx年
+                    month = match.group(2)
+                    published = f"{year}-{month}-01T00:00:00Z"
+                    updated = published
+            
+            return {
+                'id': paper_id,
+                'title': title,
+                'authors': authors,
+                'summary': summary,
+                'published': published,
+                'updated': updated,
+                'pdf_link': pdf_link,
+                'categories': categories,
+                'author_count': len(authors),
+                'replaced': replaced
+            }
+            
+        except Exception as e:
+            print(f"提取论文信息时发生错误: {e}")
+            return None
     
     def _extract_paper_info(self, entry, ns):
         """从XML条目中提取论文信息"""
@@ -207,7 +315,8 @@ class CompletePaperProcessor:
                 'updated': updated,
                 'pdf_link': pdf_link,
                 'categories': categories,
-                'author_count': len(authors)
+                'author_count': len(authors),
+                'replaced': False  # XML entries don't have replaced status
             }
             
         except Exception as e:
@@ -274,20 +383,21 @@ Title: {title}
 Abstract: {abstract}
 First Page Content: {first_page_text}
 
-请为以上文章分类标签，一共有三层标签，分别为tag1, tag2, tag3。首先根据是否是sys分类为ai, sys/mlsys, 接着继续分类sys/mlsys，根据和LLM或者diffusion或者machine learning或者deep learning或者AI有关，只要有关就是mlsys，否则就是sys，第一个标签tag1为mlsys/sys，第二层标签tag2更细粒度，比如如果是mlsys，那就细分为: ai for science, LLM inference, LLM training, post-training, Other models training, Other models inference, edge computing, checkpointing, finetuning, trace analysis, cluster infrastructure, scheduling, kernels, security, federated learning, others这几种，如果是sys就分为hardware, compiler, quantum computing, operating system, cluster management, memory, network, filesystem, computation, fault-tolerance, security, programming languages, serverless, others这几种。第三层tag就根据文章内容总结关键词进行分类，第三层的标签可以是list，用逗号隔开。
+Please analyze the provided paper (including its title, abstract, first page content, and author information) and generate the following structured output:
 
-另外，请根据作者信息和第一页内容推断论文的主要研究机构，可能会有多个机构，如果没有机构名的话，从作者的邮箱后缀判断。
+- Assign three tags:
+    - tag1: Choose one of "ai", "sys", or "mlsys" based on the content. If the content is about AI algorithms, then tag1 is "ai"; if the content is about traditional system, then tag1 is "sys"; if the content is about machine learning or deep learning or AI and system, then tag1 is "mlsys".
+    - tag2: If tag1 is "mlsys", select one specific subfield from the following list: "llm training", "llm inference", "multi-modal training", "multi-modal inference", "diffusion training", "diffusion inference", "post-training", "cluster infrastructure", "GPU kernels", "fault-tolerance" or "others". If tag1 is "ai" or "sys", assign any reasonable domain-specific category for tag2.
+    - tag3: Provide a comma-separated list of specific methods, techniques, or keywords used in the paper (e.g., "tensor parallelism, quantization, flash attention"). For "ai" or "sys" papers, this can be any relevant technical terms.
 
-最后，帮我判断我是否会对这篇文章感兴趣，判断标准如下：
-- 如果tag1是mlsys，且tag2不是security, edge computing, mobile computing, federated learning, ai for science时，我都感兴趣；
+- Identify the institution(s): Infer the main research institution(s) from author affiliations or email domains if explicit affiliations are missing.
+- Finally, provide a brief llm_summary in English (2–3 sentences) describing the paper’s core method and main conclusion.
 
-请以如下格式输出，并在最后输出2-3句话对论文的主要方法和结论进行简单LLM总结（英文即可），不带多余解释说明或代码块：
-
+Output format (strictly follow, no extra text or code blocks):
 tag1: <tag1>
 tag2: <tag2>
 tag3: <tag3, tag3, ...>
 institution: <institution>
-is_interested: <yes/no>
 llm_summary: <2-3 sentences simple summary (method+conclusion)>
 """
         try:
@@ -303,7 +413,7 @@ llm_summary: <2-3 sentences simple summary (method+conclusion)>
             
             # 解析结果
             lines = [line.strip() for line in result.splitlines() if line.strip()]
-            tag1, tag2, tag3, institution, is_interested, llm_summary = "", "", "", "", "no", ""
+            tag1, tag2, tag3, institution, llm_summary = "", "", "", "", ""
             reading_summary = False
             summary_lines = []
             
@@ -316,8 +426,6 @@ llm_summary: <2-3 sentences simple summary (method+conclusion)>
                     tag3 = line.split(":", 1)[1].strip()
                 elif line.lower().startswith("institution:"):
                     institution = line.split(":", 1)[1].strip()
-                elif line.lower().startswith("is_interested:"):
-                    is_interested = line.split(":", 1)[1].strip().lower()
                 elif line.lower().startswith("llm_summary:"):
                     reading_summary = True
                     summary_line = line.split(":", 1)[1].strip()
@@ -330,25 +438,33 @@ llm_summary: <2-3 sentences simple summary (method+conclusion)>
                 llm_summary = ' '.join(summary_lines).strip()
             
             tag3_list = [t.strip() for t in tag3.split(',') if t.strip()]
-            is_interested_bool = is_interested == "yes"
-            return tag1, tag2, tag3_list, institution, is_interested_bool, llm_summary
+            return tag1, tag2, tag3_list, institution, llm_summary
 
         except Exception as e:
             print(f"API调用失败: {e}")
-            return "", "", [], "", False, ""
+            return "", "", [], "", ""
 
     def process_single_paper(self, paper):
-        # ...实现不变...
+        # 对于非 cs.DC 的论文，跳过PDF/LLM流程，仅用于简化输出
+        categories = paper.get('categories', []) or []
         title = paper.get('title', '')
+        
+        if not any(cat == 'cs.DC' for cat in categories):
+            paper['simple_only'] = True
+            # 不再计算兴趣
+            paper['is_interested'] = True
+            print(f"简化处理(非cs.DC): {title}")
+            return paper
+
+        # cs.DC 才进行完整处理
         summary = paper.get('summary', '')
         pdf_link = paper.get('pdf_link', '')
-        
         print(f"处理论文: {title}")
         
         # 下载PDF
         if not pdf_link or pdf_link == 'N/A':
             print(f"跳过论文 {title}: 无PDF链接")
-            paper['is_interested'] = False
+            paper['is_interested'] = True
             return paper
         
         # 生成PDF文件名
@@ -358,14 +474,14 @@ llm_summary: <2-3 sentences simple summary (method+conclusion)>
         pdf_path = self.download_pdf(pdf_link, pdf_filename)
         if not pdf_path:
             print(f"跳过论文 {title}: PDF下载失败")
-            paper['is_interested'] = False
+            paper['is_interested'] = True
             return paper
         
         # 提取第一页文本
         first_page_text = self.extract_first_page_text(pdf_path)
         
-        # 调用API获取标签、机构和兴趣，并获取LLM总结
-        tag1, tag2, tag3_list, institution, is_interested, llm_summary = self.call_api_for_tags_institution_interest(
+        # 调用API获取标签、机构，并获取LLM总结
+        tag1, tag2, tag3_list, institution, llm_summary = self.call_api_for_tags_institution_interest(
             title, summary, first_page_text
         )
         
@@ -374,8 +490,10 @@ llm_summary: <2-3 sentences simple summary (method+conclusion)>
         paper['tag2'] = tag2
         paper['tag3'] = ', '.join(tag3_list)
         paper['institution'] = institution
-        paper['is_interested'] = is_interested
+        # 所有 cs.DC 都输出
+        paper['is_interested'] = True
         paper['llm_summary'] = llm_summary
+        paper['simple_only'] = False
         
         # 清理临时PDF文件
         try:
@@ -383,7 +501,7 @@ llm_summary: <2-3 sentences simple summary (method+conclusion)>
         except:
             pass
         
-        print(f"完成论文 {title}: tag1={tag1}, tag2={tag2}, institution={institution}, is_interested={'yes' if is_interested else 'no'}")
+        print(f"完成论文 {title}: tag1={tag1}, tag2={tag2}, institution={institution}")
         return paper
     
     # ==================== Markdown文件处理功能 ====================
@@ -405,21 +523,31 @@ llm_summary: <2-3 sentences simple summary (method+conclusion)>
             return None
     
     def get_arxiv_prefix(self, date_str):
-        """根据日期获取类似[arXiv2510]的字符串"""
+        """根据日期获取类似[arXiv251027]的字符串"""
         try:
             dt = datetime.strptime(date_str, '%Y-%m-%d')
-            prefix = f"[arXiv{str(dt.year)[-2:]}{dt.month:02d}]"
+            prefix = f"[arXiv{str(dt.year)[-2:]}{dt.month:02d}{dt.day:02d}]"
             return prefix
         except Exception:
             return ""
 
     def format_paper_with_enhanced_info(self, paper, date_str=None):
-        # ...实现不变...
+        # 非 cs.DC 使用简化格式：- [arXivYYMMDD] title [link](https://...)
+        categories = paper.get('categories', []) or []
         title = paper.get('title', 'N/A')
+        arxiv_prefix = ""
+        if date_str is not None:
+            arxiv_prefix = self.get_arxiv_prefix(date_str)
+        else:
+            arxiv_prefix = ""
+        if not any(cat == 'cs.DC' for cat in categories):
+            paper_link = paper.get('id', paper.get('pdf_link', ''))
+            return f"- {arxiv_prefix} {title} [link]({paper_link})\n"
+
+        # cs.DC 使用详细格式
         authors = ', '.join(paper.get('authors', []))
         pdf_link = paper.get('pdf_link', 'N/A')
         
-        # 使用API获取的标签和机构信息
         tags = []
         if paper.get('tag1'):
             tags.append("[" + paper['tag1'] + "]")
@@ -433,20 +561,6 @@ llm_summary: <2-3 sentences simple summary (method+conclusion)>
         institution = paper.get('institution', 'TBD')
         llm_summary = paper.get('llm_summary', '').strip()
         
-        # 获取arXiv前缀
-        arxiv_prefix = ""
-        if date_str is not None:
-            arxiv_prefix = self.get_arxiv_prefix(date_str)
-        else:
-            # 兼容旧代码，如果没有传则从id猜测日期
-            paper_id = paper.get("id", "")
-            match = re.search(r'(\d{4,})(\d{2})', paper_id)
-            if match:
-                year = match.group(1)
-                month = match.group(2)
-                if year and month:
-                    arxiv_prefix = f"[arXiv{year[-2:]}{month}]"
-        
         formatted_text = f"""- **{arxiv_prefix} {title}**
   - **tags:** {tags_str}
   - **authors:** {authors}
@@ -454,7 +568,6 @@ llm_summary: <2-3 sentences simple summary (method+conclusion)>
   - **link:** {pdf_link}
 """
         if llm_summary:
-            # 转义HTML特殊字符，避免MDX解析错误
             escaped_summary = llm_summary.replace('<', '&lt;').replace('>', '&gt;')
             formatted_text += f"  - **Simple LLM Summary:** {escaped_summary}\n"
         formatted_text += "\n"
@@ -466,8 +579,8 @@ llm_summary: <2-3 sentences simple summary (method+conclusion)>
             print("没有论文需要添加")
             return
 
-        # 只保留感兴趣的论文
-        interested_papers = [paper for paper in papers if paper.get('is_interested', False)]
+        # 不再根据兴趣过滤，全部输出
+        all_papers = papers
 
         existing_content = ""
         if os.path.exists(filepath):
@@ -487,12 +600,27 @@ llm_summary: <2-3 sentences simple summary (method+conclusion)>
         
         # 新section内容
         papers_content = f"## {date_str}\n\n"
-        if interested_papers:
-            for paper in interested_papers:
+        if all_papers:
+            # 先输出 cs.DC，再输出其他，保持各自相对顺序，并在每类开头输出总数
+            csdc_papers = [p for p in all_papers if any(cat == 'cs.DC' for cat in (p.get('categories', []) or []))]
+            other_papers = [p for p in all_papers if not any(cat == 'cs.DC' for cat in (p.get('categories', []) or []))]
+            # 统计 cs.AI/cs.LG 两组关键词
+            rl_papers = [p for p in other_papers if p.get('rl_match')]
+            accelerat_papers = [p for p in other_papers if p.get('accelerat_match')]
+
+            papers_content += f"**cs.DC total: {len(csdc_papers)}**\n\n"
+            for paper in csdc_papers:
+                papers_content += self.format_paper_with_enhanced_info(paper, date_str=date_str)
+
+            papers_content += f"\n**cs.AI/cs.LG contains \"reinforcement learning\" total: {len(rl_papers)}**\n"
+            for paper in rl_papers:
+                papers_content += self.format_paper_with_enhanced_info(paper, date_str=date_str)
+
+            papers_content += f"\n**cs.AI/cs.LG contains \"accelerate\" total: {len(accelerat_papers)}**\n"
+            for paper in accelerat_papers:
                 papers_content += self.format_paper_with_enhanced_info(paper, date_str=date_str)
         else:
-            print("No interesting papers for me today")
-            papers_content += "No interesting papers for me today\n"
+            papers_content += "No papers today\n"
 
         replaced = False
         # 如有则替换当前日期section
@@ -513,7 +641,7 @@ llm_summary: <2-3 sentences simple summary (method+conclusion)>
                 print(f"日期 {date_str} 的内容已存在，已覆盖")
                 with open(filepath, 'w', encoding='utf-8') as f:
                     f.write(new_content.strip() + '\n')
-                print(f"已将 {len(interested_papers)} 篇感兴趣的论文添加到文件: {filepath}")
+                print(f"已将 {len(all_papers)} 篇论文添加到文件: {filepath}")
                 return
 
         # 如果没有，插入保持时间递增顺序（从小到大）
@@ -544,7 +672,7 @@ llm_summary: <2-3 sentences simple summary (method+conclusion)>
         with open(filepath, 'w', encoding='utf-8') as f:
             f.write(new_content.strip() + '\n')
 
-        print(f"已将 {len(interested_papers)} 篇感兴趣的论文添加到文件: {filepath}")
+        print(f"已将 {len(all_papers)} 篇论文添加到文件: {filepath}")
 
     def find_or_create_weekly_file(self, date_str):
         """根据日期找到或创建对应的周文件"""
@@ -577,7 +705,7 @@ llm_summary: <2-3 sentences simple summary (method+conclusion)>
 
     # ==================== 主处理流程 ====================
     
-    def process_papers_by_date(self, target_date, categories=['cs.DC', 'cs.AI'], max_workers=2, max_papers=10):
+    def process_papers_by_date(self, target_date=None, categories=['cs.DC', 'cs.AI'], max_workers=2, max_papers=10):
         """
         根据指定日期处理论文的完整流程
 
@@ -587,9 +715,14 @@ llm_summary: <2-3 sentences simple summary (method+conclusion)>
             max_workers (int): 并发处理数量
             max_papers (int): 最大处理论文数量（用于测试）
         """
-        # 只支持单个日期
-        if not (isinstance(target_date, str) and re.match(r'^\d{4}-\d{2}-\d{2}$', target_date)):
-            print("target_date格式错误，只支持 'YYYY-MM-DD' 字符串")
+        # 若未提供日期，则默认使用今天
+        if not target_date:
+            target_date = datetime.now().strftime('%Y-%m-%d')
+
+        # ==== 新增: arxiv_date.txt 检查 ====
+        today_ymd = target_date
+        if already_processed(today_ymd):
+            print(f"日期 {today_ymd} 已经处理过，自动退出。")
             return
 
         print(f"开始处理日期: {target_date}")
@@ -602,6 +735,7 @@ llm_summary: <2-3 sentences simple summary (method+conclusion)>
 
         if not papers:
             print(f"日期 {single_date} 没有找到论文")
+            append_to_processed(single_date)
             return
 
         # 限制处理数量（用于测试）
@@ -635,20 +769,19 @@ llm_summary: <2-3 sentences simple summary (method+conclusion)>
                     print(f"处理论文时出错: {e}")
 
         # 3. 统计结果
-        interested_papers = [p for p in processed_papers if p.get('is_interested', False)]
-        print(f"处理完成！总共 {len(processed_papers)} 篇论文，其中 {len(interested_papers)} 篇感兴趣")
+        print(f"处理完成！总共 {len(processed_papers)} 篇论文")
 
         # 4. 更新markdown文件
         print("步骤3: 更新markdown文件...")
         weekly_file = self.find_or_create_weekly_file(single_date)
         if weekly_file:
             self.update_markdown_file(weekly_file, processed_papers, single_date)
-            if interested_papers:
-                print(f"处理完成！感兴趣的论文已添加到: {weekly_file}")
-            else:
-                print(f"处理完成！已添加日期记录到: {weekly_file}")
+            print(f"处理完成！论文已添加到: {weekly_file}")
         else:
             print("无法创建或找到周文件")
+        
+        # 完成后写入arxiv_date.txt
+        append_to_processed(single_date)
 
 def main():
     """
@@ -663,12 +796,17 @@ def main():
         print("请设置DEEPSEEK_API_KEY环境变量")
         return
     
-    # 创建处理器
-    processor = CompletePaperProcessor()
-    
     # 指定要处理的日期（只支持单天，格式'YYYY-MM-DD'）
     target_date = datetime.now().strftime('%Y-%m-%d') # 今天日期
 
+    # ==== 新增，运行前检查日期是否已处理 ====
+    if already_processed(target_date):
+        print(f"日期 {target_date} 已经处理过，自动退出。")
+        return
+
+    # 创建处理器
+    processor = CompletePaperProcessor()
+    
     # 处理论文
     processor.process_papers_by_date(
         target_date=target_date,
