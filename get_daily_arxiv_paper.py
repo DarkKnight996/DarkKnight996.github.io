@@ -48,6 +48,65 @@ def append_to_processed(date_str, filename="arxiv_date.txt"):
     except Exception as e:
         print(f"写入 {filename} 错误: {e}")
 
+def extract_date_from_html(html_content=None, url="https://arxiv.org/list/cs/new"):
+    """
+    从arXiv HTML内容中提取日期
+    
+    Args:
+        html_content (bytes or str): HTML内容，如果提供则直接使用，否则从URL下载
+        url (str): arXiv HTML页面URL，仅在html_content为None时使用
+        
+    Returns:
+        str: 日期字符串，格式为 'YYYY-MM-DD'，如果提取失败返回None
+    """
+    try:
+        # 如果提供了HTML内容，直接使用；否则从URL下载
+        if html_content is None:
+            print(f"正在从 {url} 下载HTML并提取日期...")
+            response = requests.get(url, timeout=30)
+            response.raise_for_status()
+            html_content = response.content
+        else:
+            print("从提供的HTML内容中提取日期...")
+        
+        # 使用BeautifulSoup解析HTML
+        soup = BeautifulSoup(html_content, 'html.parser')
+        
+        # 查找包含"Showing new listings for"的h3标签
+        h3_tags = soup.find_all('h3')
+        for h3 in h3_tags:
+            text = h3.get_text()
+            if 'Showing new listings for' in text:
+                # 提取日期部分，格式如 "Monday, 3 November 2025"
+                # 匹配日期模式：Day, DD Month YYYY
+                date_pattern = r'(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),\s+(\d{1,2})\s+(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{4})'
+                match = re.search(date_pattern, text)
+                if match:
+                    day = match.group(1)
+                    month_name = match.group(2)
+                    year = match.group(3)
+                    
+                    # 月份名称到数字的映射
+                    month_map = {
+                        'January': '01', 'February': '02', 'March': '03', 'April': '04',
+                        'May': '05', 'June': '06', 'July': '07', 'August': '08',
+                        'September': '09', 'October': '10', 'November': '11', 'December': '12'
+                    }
+                    
+                    month_num = month_map.get(month_name)
+                    if month_num:
+                        # 格式化日期为 YYYY-MM-DD
+                        date_str = f"{year}-{month_num}-{day.zfill(2)}"
+                        print(f"从HTML页面提取到日期: {date_str}")
+                        return date_str
+        
+        print("未能在HTML页面中找到日期信息")
+        return None
+        
+    except Exception as e:
+        print(f"从HTML页面提取日期时发生错误: {e}")
+        return None
+
 class CompletePaperProcessor:
     def __init__(self, docs_daily_path="docs/daily", temp_dir="temp_pdfs"):
         """
@@ -75,14 +134,15 @@ class CompletePaperProcessor:
     
     # ==================== arXiv论文获取功能 ====================
 
-    def fetch_arxiv_papers(self, categories=['cs.DC', 'cs.AI'], max_results=2000, target_date=None):
+    def fetch_arxiv_papers(self, categories=['cs.DC', 'cs.AI'], max_results=2000, target_date=None, html_content=None):
         """
-        从arXiv HTML页面获取指定分类的论文，并根据papers.jsonl去重与增补
+        从arXiv HTML内容获取指定分类的论文，并根据papers.jsonl去重与增补
         
         Args:
             categories (list): 论文分类列表（暂时忽略，从HTML获取所有cs分类）
             max_results (int): 最大获取数量
             target_date (str): 目标日期，格式为 'YYYY-MM-DD'，本函数只考虑单个日期
+            html_content (bytes): HTML内容，如果提供则直接使用，否则从URL下载
             
         Returns:
             list: 论文列表（直接从HTML解析得到的论文，不再依赖papers.jsonl）
@@ -91,13 +151,17 @@ class CompletePaperProcessor:
         seen_papers = set()
 
         # 从arXiv HTML页面获取论文
-        print("正在从 https://arxiv.org/list/cs/new 获取论文信息...")
+        print("正在解析HTML内容获取论文信息...")
         try:
-            response = requests.get('https://arxiv.org/list/cs/new', timeout=30)
-            response.raise_for_status()
+            # 如果提供了HTML内容，直接使用；否则从URL下载
+            if html_content is None:
+                print("正在从 https://arxiv.org/list/cs/new 下载HTML...")
+                response = requests.get('https://arxiv.org/list/cs/new', timeout=30)
+                response.raise_for_status()
+                html_content = response.content
             
             # 使用BeautifulSoup解析HTML
-            soup = BeautifulSoup(response.content, 'html.parser')
+            soup = BeautifulSoup(html_content, 'html.parser')
             
             # 查找所有论文条目
             paper_entries = soup.find_all('dt')
@@ -706,7 +770,7 @@ llm_summary: <2-3 sentences simple summary (method+conclusion)>
 
     # ==================== 主处理流程 ====================
     
-    def process_papers_by_date(self, target_date=None, categories=['cs.DC', 'cs.AI'], max_workers=2, max_papers=10):
+    def process_papers_by_date(self, target_date=None, categories=['cs.DC', 'cs.AI'], max_workers=2, max_papers=10, html_content=None):
         """
         根据指定日期处理论文的完整流程
 
@@ -715,6 +779,7 @@ llm_summary: <2-3 sentences simple summary (method+conclusion)>
             categories (list): 论文分类列表
             max_workers (int): 并发处理数量
             max_papers (int): 最大处理论文数量（用于测试）
+            html_content (bytes): HTML内容，如果提供则直接使用
         """
         # 若未提供日期，则默认使用今天
         if not target_date:
@@ -732,7 +797,7 @@ llm_summary: <2-3 sentences simple summary (method+conclusion)>
         print(f"\n==== 处理 {single_date} ====")
         # 1. 从arXiv获取论文
         print("步骤1: 从arXiv获取论文...")
-        papers = self.fetch_arxiv_papers(categories=categories, max_results=1024, target_date=single_date)
+        papers = self.fetch_arxiv_papers(categories=categories, max_results=1024, target_date=single_date, html_content=html_content)
 
         if not papers:
             print(f"日期 {single_date} 没有找到论文")
@@ -797,10 +862,32 @@ def main():
         print("请设置DEEPSEEK_API_KEY环境变量")
         return
     
-    # 指定要处理的日期（只支持单天，格式'YYYY-MM-DD'）
-    target_date = datetime.now().strftime('%Y-%m-%d') # 今天日期
+    # 从arXiv HTML页面下载HTML内容（只下载一次）
+    arxiv_url = "https://arxiv.org/list/cs/new"
+    print(f"正在从 {arxiv_url} 下载HTML内容...")
+    try:
+        response = requests.get(arxiv_url, timeout=30)
+        response.raise_for_status()
+        html_content = response.content
+        print("HTML内容下载成功")
+    except Exception as e:
+        print(f"下载HTML内容失败: {e}")
+        html_content = None
+    
+    # 从HTML内容中提取日期
+    if html_content:
+        target_date = extract_date_from_html(html_content=html_content)
+    else:
+        target_date = None
+    
+    # 如果从HTML页面提取失败，使用当前日期
+    if not target_date:
+        print("无法从HTML页面提取日期，使用当前日期")
+        target_date = datetime.now().strftime('%Y-%m-%d')
+    else:
+        print(f"使用从HTML页面提取的日期: {target_date}")
 
-    # ==== 新增，运行前检查日期是否已处理 ====
+    # ==== 运行前检查日期是否已处理 ====
     if already_processed(target_date):
         print(f"日期 {target_date} 已经处理过，自动退出。")
         return
@@ -808,12 +895,13 @@ def main():
     # 创建处理器
     processor = CompletePaperProcessor()
     
-    # 处理论文
+    # 处理论文（传递已下载的HTML内容）
     processor.process_papers_by_date(
         target_date=target_date,
         categories=['cs.DC', 'cs.AI', 'cs.LG'],  # 可以修改分类
         max_workers=10,  # 并发数量，建议不要太高
-        max_papers=None    # 测试时限制论文数量，正式使用时可以设为None
+        max_papers=None,    # 测试时限制论文数量，正式使用时可以设为None
+        html_content=html_content  # 传递已下载的HTML内容
     )
 
 if __name__ == "__main__":
