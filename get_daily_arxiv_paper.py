@@ -633,7 +633,8 @@ llm_summary: <2-3 sentences simple summary (method+conclusion)>
   - **link:** {pdf_link}
 """
         if llm_summary:
-            escaped_summary = llm_summary.replace('<', '&lt;').replace('>', '&gt;')
+            # 转义MDX特殊字符：大括号{}会被MDX解析为JSX表达式，需要转义
+            escaped_summary = llm_summary.replace('<', '&lt;').replace('>', '&gt;').replace('{', '\\{').replace('}', '\\}')
             formatted_text += f"  - **Simple LLM Summary:** {escaped_summary}\n"
         formatted_text += "\n"
         return formatted_text
