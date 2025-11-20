@@ -598,6 +598,7 @@ llm_summary: <2-3 sentences simple summary (method+conclusion)>
     def clean_latex_in_title(self, title):
         """
         清理标题中的 LaTeX 语法，转换为 Markdown 格式
+        彻底规避 MDX 解析错误，将所有 LaTeX 命令转换为安全的 Markdown/HTML
         
         Args:
             title (str): 原始标题
@@ -619,11 +620,34 @@ llm_summary: <2-3 sentences simple summary (method+conclusion)>
         title = re.sub(r'\\emph\{([^}]+)\}', r'*\1*', title)
         # \text{...} -> ... (普通文本，直接移除命令)
         title = re.sub(r'\\text\{([^}]+)\}', r'\1', title)
-        # 其他常见的 LaTeX 命令，直接移除命令保留内容
         # \textsc{...} -> ... (小型大写，Markdown 不支持，直接移除命令)
         title = re.sub(r'\\textsc\{([^}]+)\}', r'\1', title)
-        # \underline{...} -> ... (下划线，Markdown 不支持，直接移除命令)
-        title = re.sub(r'\\underline\{([^}]+)\}', r'\1', title)
+        # \underline{...} -> <u>...</u> (下划线，转换为 HTML)
+        title = re.sub(r'\\underline\{([^}]+)\}', r'<u>\1</u>', title)
+        # \uline{...} -> <u>...</u> (ulem 包的下划线命令，转换为 HTML)
+        title = re.sub(r'\\uline\{([^}]+)\}', r'<u>\1</u>', title)
+        # \uuline{...} -> <u>...</u> (ulem 包的双下划线，转换为 HTML)
+        title = re.sub(r'\\uuline\{([^}]+)\}', r'<u>\1</u>', title)
+        # \uwave{...} -> <u>...</u> (ulem 包的波浪下划线，转换为 HTML)
+        title = re.sub(r'\\uwave\{([^}]+)\}', r'<u>\1</u>', title)
+        # \sout{...} -> ~~...~~ (ulem 包的删除线，转换为 Markdown)
+        title = re.sub(r'\\sout\{([^}]+)\}', r'~~\1~~', title)
+        
+        # 通用清理：处理所有其他 LaTeX 命令 \command{...}，移除命令保留内容
+        # 这样可以避免任何未处理的 LaTeX 命令被 MDX 误解析为 JavaScript
+        # 注意：这个通用清理应该在所有特定命令处理之后执行
+        # 匹配模式：反斜杠 + 字母命令名 + 大括号参数
+        def remove_latex_command(match):
+            # group(1) 是命令名，group(2) 是内容，返回内容
+            return match.group(2) if match.lastindex >= 2 else ''
+        
+        # 处理 \command{content} 格式的命令（移除命令，保留内容）
+        # 这个正则会匹配所有剩余的 \command{...} 格式
+        title = re.sub(r'\\([a-zA-Z]+)\{([^}]+)\}', remove_latex_command, title)
+        
+        # 处理 \command 格式的命令（无参数，直接移除）
+        # 这些命令通常需要完全移除
+        title = re.sub(r'\\([a-zA-Z]+)(?![a-zA-Z{])', '', title)
         
         return title
 
