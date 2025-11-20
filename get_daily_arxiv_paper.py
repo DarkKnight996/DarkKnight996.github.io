@@ -595,10 +595,44 @@ llm_summary: <2-3 sentences simple summary (method+conclusion)>
         except Exception:
             return ""
 
+    def clean_latex_in_title(self, title):
+        """
+        清理标题中的 LaTeX 语法，转换为 Markdown 格式
+        
+        Args:
+            title (str): 原始标题
+            
+        Returns:
+            str: 清理后的标题
+        """
+        if not title:
+            return title
+        
+        # 常见的 LaTeX 命令转换
+        # \textit{...} -> *...* (斜体)
+        title = re.sub(r'\\textit\{([^}]+)\}', r'*\1*', title)
+        # \textbf{...} -> **...** (粗体)
+        title = re.sub(r'\\textbf\{([^}]+)\}', r'**\1**', title)
+        # \texttt{...} -> `...` (等宽字体)
+        title = re.sub(r'\\texttt\{([^}]+)\}', r'`\1`', title)
+        # \emph{...} -> *...* (强调/斜体)
+        title = re.sub(r'\\emph\{([^}]+)\}', r'*\1*', title)
+        # \text{...} -> ... (普通文本，直接移除命令)
+        title = re.sub(r'\\text\{([^}]+)\}', r'\1', title)
+        # 其他常见的 LaTeX 命令，直接移除命令保留内容
+        # \textsc{...} -> ... (小型大写，Markdown 不支持，直接移除命令)
+        title = re.sub(r'\\textsc\{([^}]+)\}', r'\1', title)
+        # \underline{...} -> ... (下划线，Markdown 不支持，直接移除命令)
+        title = re.sub(r'\\underline\{([^}]+)\}', r'\1', title)
+        
+        return title
+
     def format_paper_with_enhanced_info(self, paper, date_str=None):
         # 非 cs.DC 使用简化格式：- [arXivYYMMDD] title [link](https://...)
         categories = paper.get('categories', []) or []
         title = paper.get('title', 'N/A')
+        # 清理标题中的 LaTeX 语法
+        title = self.clean_latex_in_title(title)
         arxiv_prefix = ""
         if date_str is not None:
             arxiv_prefix = self.get_arxiv_prefix(date_str)
