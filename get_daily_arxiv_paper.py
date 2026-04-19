@@ -651,6 +651,107 @@ llm_summary: <2-3 sentences simple summary (method+conclusion)>
         
         return title
 
+    def normalize_math_delimiters(self, text):
+        r"""将 LaTeX 风格的 \(...\) / \[...\] 转成 remark-math 更稳定的 $...$ / $$...$$。"""
+        if not text:
+            return text
+
+        text = re.sub(r'\\\[(.+?)\\\]', lambda m: f"$${m.group(1).strip()}$$", text, flags=re.DOTALL)
+        text = re.sub(r'\\\((.+?)\\\)', lambda m: f"${m.group(1).strip()}$", text, flags=re.DOTALL)
+        return text
+
+    def normalize_math_content(self, math_content):
+        r"""
+        规范化数学片段中的常见转义污染，尽量保留真正需要显示的大括号。
+
+        处理目标：
+        1. 将生成文本里的 \\{ / \\} 先收敛成 \{ / \}
+        2. 修复明显错误的命令参数写法，例如 \widetilde\{O\} -> \widetilde{O}
+        3. 修复上标/下标分组，例如 n^\{3/2\} -> n^{3/2}
+        """
+        if not math_content:
+            return math_content
+
+        content = math_content
+
+        # 先修复双反斜杠污染：\\{ -> \{, \\} -> \}
+        content = re.sub(r'\\\\([{}])', r'\\\1', content)
+
+        # 修复常见需要参数的大部分数学命令，把误写成 \{...\} 的参数改回 {...}
+        argument_commands = (
+            "sqrt|widetilde|tilde|hat|bar|vec|dot|ddot|breve|check|acute|grave|"
+            "mathbf|mathrm|mathit|mathsf|mathtt|mathbb|mathcal|mathfrak|"
+            "text|textbf|textit|texttt|operatorname|overline|underline|boxed|"
+            "frac|dfrac|tfrac|binom|dbinom|tbinom"
+        )
+        command_pattern = re.compile(
+            rf'(\\(?:{argument_commands}))\\\{{([^{{}}]+)\\\}}'
+        )
+        while True:
+            content, count = command_pattern.subn(r'\1{\2}', content)
+            if count == 0:
+                break
+
+        # 修复 ^\{...\} / _\{...\}
+        content = re.sub(r'([\^_])\\\{([^{}]+)\\\}', r'\1{\2}', content)
+
+        return content
+
+    def sanitize_text_for_mdx(self, text, context_label="text"):
+        r"""
+        将待写入 Markdown/MDX 的文本规范化为更安全的形式。
+
+        规则：
+        - \(...\) -> $...$
+        - \[...\] -> $$...$$
+        - 只在数学片段中修复明显错误的 \{...\} 分组
+        - 数学片段外的 { } 转义，避免 MDX 当成表达式解析
+        - 数学片段外的 < > 转为实体，避免被当成 JSX 标签
+        """
+        if not text:
+            return text
+
+        text = self.normalize_math_delimiters(text)
+
+        math_pattern = re.compile(r'(\$\$.*?\$\$|\$.*?\$)', re.DOTALL)
+        parts = []
+        last_end = 0
+
+        for match in math_pattern.finditer(text):
+            non_math = text[last_end:match.start()]
+            if non_math:
+                non_math = non_math.replace('<', '&lt;').replace('>', '&gt;')
+                non_math = non_math.replace('{', '\\{').replace('}', '\\}')
+                parts.append(non_math)
+
+            token = match.group(0)
+            delimiter = "$$" if token.startswith("$$") else "$"
+            math_content = token[len(delimiter):-len(delimiter)]
+            normalized_math = self.normalize_math_content(math_content)
+            parts.append(f"{delimiter}{normalized_math}{delimiter}")
+
+            suspicious_patterns = []
+            if '\\\\{' in normalized_math or '\\\\}' in normalized_math:
+                suspicious_patterns.append('double-escaped braces')
+            if re.search(r'[\^_]\\\{', normalized_math):
+                suspicious_patterns.append('escaped super/subscript braces')
+
+            if suspicious_patterns:
+                print(
+                    f"警告: {context_label} 中仍存在可疑数学转义: "
+                    f"{', '.join(suspicious_patterns)} -> {token[:120]}"
+                )
+
+            last_end = match.end()
+
+        tail = text[last_end:]
+        if tail:
+            tail = tail.replace('<', '&lt;').replace('>', '&gt;')
+            tail = tail.replace('{', '\\{').replace('}', '\\}')
+            parts.append(tail)
+
+        return ''.join(parts)
+
     def format_paper_with_enhanced_info(self, paper, date_str=None):
         # 非 cs.DC 使用简化格式：- [arXivYYMMDD] title [link](https://...)
         categories = paper.get('categories', []) or []
@@ -691,9 +792,11 @@ llm_summary: <2-3 sentences simple summary (method+conclusion)>
   - **link:** {pdf_link}
 """
         if llm_summary:
-            # 转义MDX特殊字符：大括号{}会被MDX解析为JSX表达式，需要转义
-            escaped_summary = llm_summary.replace('<', '&lt;').replace('>', '&gt;').replace('{', '\\{').replace('}', '\\}')
-            formatted_text += f"  - **Simple LLM Summary:** {escaped_summary}\n"
+            sanitized_summary = self.sanitize_text_for_mdx(
+                llm_summary,
+                context_label=f"summary for {title[:60]}"
+            )
+            formatted_text += f"  - **Simple LLM Summary:** {sanitized_summary}\n"
         formatted_text += "\n"
         return formatted_text
 
