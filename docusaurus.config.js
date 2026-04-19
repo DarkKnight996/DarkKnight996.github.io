@@ -10,8 +10,8 @@ import {themes as prismThemes} from 'prism-react-renderer';
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'DarkKnight Note',
-  tagline: 'AI Dark Knight Note',
+  title: 'Note',
+  tagline: 'Note',
   favicon: 'img/favicon.ico',
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
@@ -20,15 +20,15 @@ const config = {
   },
 
   // Set the production url of your site here
-  url: 'https://darkknight996.github.io',
+  url: 'https://Mikedownload1.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'DarkKnight996', // Usually your GitHub org/user name.
-  projectName: 'DarkKnight996.github.io', // Usually your repo name.
+  organizationName: 'Mikedownload1', // Usually your GitHub org/user name.
+  projectName: 'Mikedownload1.github.io', // Usually your repo name.
   trailingSlash: false,
 
   onBrokenLinks: 'throw',
@@ -67,7 +67,7 @@ const config = {
     ({
       //giscus
       giscus: {
-        repo: 'DarkKnight996/comment',
+        repo: 'Mikedownload1/comment',
         repoId: 'R_kgDOPH6giw',
         category: 'General',
         categoryId: 'DIC_kwDOPH6gi84Csjmd',
@@ -80,14 +80,14 @@ const config = {
         },
       },
       navbar: {
-        title: 'Dark Knight Note',
+        title: 'Note',
         logo: {
-          alt: 'DarkKnight Note',
+          alt: 'Note',
           src: 'img/favicon.ico',
         },
         items: [
           {
-            href: 'https://github.com/DarkKnight996',
+            href: 'https://github.com/Mikedownload1',
             label: 'GitHub',
             position: 'right',
           },
@@ -95,7 +95,7 @@ const config = {
       },
       footer: {
         style: 'dark',
-        copyright: `Copyright © ${new Date().getFullYear()} DarkKnight996, Inc. Built with Docusaurus.`,
+        copyright: `Copyright © ${new Date().getFullYear()} Mikedownload1, Inc. Built with Docusaurus.`,
       },
       prism: {
         theme: prismThemes.github,

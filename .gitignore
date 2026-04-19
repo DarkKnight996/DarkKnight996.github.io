@@ -21,3 +21,6 @@ yarn-error.log*
 
 temp_pdfs
 *.pyc
+
+.obsidian/
+change_commit_info.sh
