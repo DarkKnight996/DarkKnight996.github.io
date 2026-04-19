@@ -1,0 +1,23 @@
+.docItemContainer header + *,
+.docItemContainer article > *:first-child {
+  margin-top: 0;
+}
+
+.docItemCol {
+  width: 100%;
+  max-width: 100% !important;
+}
+
+.commentsSection {
+  margin-top: 2.5rem;
+}
+
+.commentsHeading {
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 996px) {
+  .docItemContainer {
+    padding: 0 0.3rem;
+  }
+}

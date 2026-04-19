@@ -1,0 +1,111 @@
+.tocShell {
+  position: fixed;
+  right: 1.1rem;
+  top: calc(var(--ifm-navbar-height) + 1rem);
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.65rem;
+  pointer-events: none;
+}
+
+.tocShellOpen {
+  pointer-events: auto;
+}
+
+.toggleButton {
+  pointer-events: auto;
+  border: 1px solid rgba(46, 133, 85, 0.22);
+  background: rgba(255, 255, 255, 0.96);
+  color: #205d3b;
+  border-radius: 999px;
+  padding: 0.55rem 0.9rem;
+  box-shadow: 0 10px 24px rgba(31, 41, 55, 0.12);
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.toggleButton:hover {
+  background: #ffffff;
+}
+
+.panel {
+  pointer-events: auto;
+  width: min(320px, calc(100vw - 5rem));
+  max-height: calc(100vh - (var(--ifm-navbar-height) + 2rem));
+  overflow: hidden;
+  border: 1px solid rgba(46, 133, 85, 0.18);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 18px 42px rgba(31, 41, 55, 0.16);
+  transform-origin: top right;
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
+}
+
+.panelHidden {
+  opacity: 0;
+  transform: translateX(10px) scale(0.98);
+  pointer-events: none;
+}
+
+.panelHeader {
+  padding: 0.95rem 1rem 0.25rem;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #205d3b;
+}
+
+.tocBody {
+  max-height: calc(100vh - (var(--ifm-navbar-height) + 5.5rem));
+  padding: 0.25rem 1rem 1rem;
+}
+
+.extraOutline {
+  padding: 0 1rem 1rem;
+}
+
+.extraOutlineButton {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--ifm-color-emphasis-700);
+  cursor: pointer;
+  font: inherit;
+  padding: 0.35rem 0;
+  text-align: left;
+}
+
+.extraOutlineButton:hover {
+  color: var(--ifm-color-primary);
+}
+
+@media (max-width: 996px) {
+  .tocShell {
+    display: none;
+  }
+}
+
+[data-theme='dark'] .toggleButton {
+  border-color: rgba(79, 221, 191, 0.24);
+  background: rgba(18, 25, 22, 0.96);
+  color: #c8f5e3;
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme='dark'] .toggleButton:hover {
+  background: rgba(22, 31, 27, 0.98);
+}
+
+[data-theme='dark'] .panel {
+  border-color: rgba(79, 221, 191, 0.2);
+  background: rgba(18, 25, 22, 0.97);
+  box-shadow: 0 22px 44px rgba(0, 0, 0, 0.34);
+}
+
+[data-theme='dark'] .panelHeader {
+  color: #9ce6c4;
+}

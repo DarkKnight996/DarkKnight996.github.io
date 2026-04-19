@@ -1,16 +1,71 @@
 import React, {type ReactNode} from 'react';
-import Layout from '@theme-original/DocItem/Layout';
-import type LayoutType from '@theme/DocItem/Layout';
-import type {WrapperProps} from '@docusaurus/types';
+import clsx from 'clsx';
+import {useWindowSize} from '@docusaurus/theme-common';
+import {useDoc} from '@docusaurus/plugin-content-docs/client';
+import DocItemPaginator from '@theme/DocItem/Paginator';
+import DocVersionBanner from '@theme/DocVersionBanner';
+import DocVersionBadge from '@theme/DocVersionBadge';
+import DocItemFooter from '@theme/DocItem/Footer';
+import DocItemTOCMobile from '@theme/DocItem/TOC/Mobile';
+import DocItemTOCDesktop from '@theme/DocItem/TOC/Desktop';
+import DocItemContent from '@theme/DocItem/Content';
+import DocBreadcrumbs from '@theme/DocBreadcrumbs';
+import ContentVisibility from '@theme/ContentVisibility';
+import type {Props} from '@theme/DocItem/Layout';
 import Comment from '@site/src/components/Comment';
 
-type Props = WrapperProps<typeof LayoutType>;
+import styles from './styles.module.css';
 
-export default function LayoutWrapper(props: Props): ReactNode {
+function useDocTOC() {
+  const {frontMatter, toc} = useDoc();
+  const windowSize = useWindowSize();
+
+  const hidden = frontMatter.hide_table_of_contents;
+  const canRender = !hidden && toc.length > 0;
+  const canRenderDesktop = !hidden;
+
+  const mobile = canRender ? <DocItemTOCMobile /> : undefined;
+  const desktop =
+    canRenderDesktop && (windowSize === 'desktop' || windowSize === 'ssr') ? (
+      <DocItemTOCDesktop />
+    ) : undefined;
+
+  return {
+    hidden,
+    mobile,
+    desktop,
+  };
+}
+
+export default function Layout({children}: Props): ReactNode {
+  const docTOC = useDocTOC();
+  const {metadata} = useDoc();
+
   return (
     <>
-      <Layout {...props} />
-      <Comment />
+      <div className="row">
+        <div className={clsx('col', styles.docItemCol)}>
+          <ContentVisibility metadata={metadata} />
+          <DocVersionBanner />
+          <div className={styles.docItemContainer}>
+            <article>
+              <DocBreadcrumbs />
+              <DocVersionBadge />
+              {docTOC.mobile}
+              <DocItemContent>{children}</DocItemContent>
+              <DocItemFooter />
+            </article>
+            <DocItemPaginator />
+          </div>
+        </div>
+      </div>
+      {docTOC.desktop}
+      <section className={styles.commentsSection} aria-labelledby="comments">
+        <h2 id="comments" className={styles.commentsHeading}>
+          评论区
+        </h2>
+        <Comment />
+      </section>
     </>
   );
 }
