@@ -5,6 +5,7 @@
 // See: https://docusaurus.io/docs/api/docusaurus-config
 
 import {themes as prismThemes} from 'prism-react-renderer';
+import remarkPaperCards from './src/remark/remark-paper-cards.js';
 
 function sortDailyItemsDescending(items, parentLabel = null) {
   return items.map((item) => {
@@ -13,7 +14,13 @@ function sortDailyItemsDescending(items, parentLabel = null) {
     }
 
     const sortedChildren = sortDailyItemsDescending(item.items, item.label);
-    const shouldSortCurrentCategory = item.label === 'Daily' || parentLabel === 'Daily';
+    const label = (item.label ?? '').toLowerCase();
+    const parent = (parentLabel ?? '').toLowerCase();
+    const href = typeof item.href === 'string' ? item.href.toLowerCase() : '';
+    const shouldSortCurrentCategory =
+      label.includes('daily') ||
+      parent.includes('daily') ||
+      href.includes('/daily');
 
     return {
       ...item,
@@ -73,7 +80,7 @@ const config = {
           sidebarPath: './sidebars.js',
           routeBasePath: '/',
           showLastUpdateTime: true,
-          remarkPlugins: [require('remark-math')],
+          remarkPlugins: [require('remark-math'), remarkPaperCards],
           rehypePlugins: [require('rehype-katex')],
           async sidebarItemsGenerator(args) {
             const sidebarItems = await args.defaultSidebarItemsGenerator(args);
