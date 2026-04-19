@@ -6,6 +6,28 @@
 
 import {themes as prismThemes} from 'prism-react-renderer';
 
+function sortDailyItemsDescending(items, parentLabel = null) {
+  return items.map((item) => {
+    if (item.type !== 'category') {
+      return item;
+    }
+
+    const sortedChildren = sortDailyItemsDescending(item.items, item.label);
+    const shouldSortCurrentCategory = item.label === 'Daily' || parentLabel === 'Daily';
+
+    return {
+      ...item,
+      items: shouldSortCurrentCategory
+        ? [...sortedChildren].sort((a, b) => {
+            const aKey = a.type === 'doc' ? a.id : a.label ?? '';
+            const bKey = b.type === 'doc' ? b.id : b.label ?? '';
+            return bKey.localeCompare(aKey);
+          })
+        : sortedChildren,
+    };
+  });
+}
+
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 /** @type {import('@docusaurus/types').Config} */
@@ -53,6 +75,10 @@ const config = {
           showLastUpdateTime: true,
           remarkPlugins: [require('remark-math')],
           rehypePlugins: [require('rehype-katex')],
+          async sidebarItemsGenerator(args) {
+            const sidebarItems = await args.defaultSidebarItemsGenerator(args);
+            return sortDailyItemsDescending(sidebarItems);
+          },
         },
         blog: false,
         theme: {
