@@ -60,8 +60,10 @@ export default function Layout({children}: Props): ReactNode {
         </div>
       </div>
       {docTOC.desktop}
-      <section className={styles.commentsSection} aria-labelledby="comments">
-        <h2 id="comments" className={styles.commentsHeading}>
+      <section
+        className={styles.commentsSection}
+        aria-labelledby="comments-section">
+        <h2 id="comments-section" className={styles.commentsHeading}>
           评论区
         </h2>
         <Comment />

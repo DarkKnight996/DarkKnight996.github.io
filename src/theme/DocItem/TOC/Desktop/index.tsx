@@ -38,7 +38,7 @@ export default function DocItemTOCDesktop(): ReactNode {
   }, [isOpen]);
 
   function scrollToComments() {
-    const commentsSection = document.getElementById('comments');
+    const commentsSection = document.getElementById('comments-section');
     commentsSection?.scrollIntoView({behavior: 'smooth', block: 'start'});
     setIsOpen(false);
   }
